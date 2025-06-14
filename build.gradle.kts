@@ -2,10 +2,11 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.5.0"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("org.springdoc.openapi-gradle-plugin") version "1.8.0" // Плагин для генерации OpenAPI
 }
 
-group = "com.example"
-version = "0.0.1-SNAPSHOT"
+group = "com.warehouse"
+version = "1.0.0"
 
 java {
 	toolchain {
@@ -18,11 +19,60 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	// Spring Boot Starters
+	implementation("org.springframework.boot:spring-boot-starter-web") // Веб-функциональность (MVC)
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa") // JPA + Hibernate
+	implementation("org.springframework.boot:spring-boot-starter-validation") // Валидация (@Valid и другие аннотации)
+
+	// База данных
+	runtimeOnly("com.h2database:h2") // Драйвер PostgreSQL
+	runtimeOnly("org.postgresql:postgresql")
+
+	// Документация API
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0") // Swagger UI + OpenAPI 3
+
+	// Утилиты
+	compileOnly("org.projectlombok:lombok") // Генерация boilerplate-кода
+	annotationProcessor("org.projectlombok:lombok") // Обработка аннотаций Lombok
+	implementation("org.mapstruct:mapstruct:1.5.5.Final") // Маппинг DTO <-> Entity
+	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final") // Генерация мапперов
+
+	// Тестирование
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+	}
+	testImplementation("org.junit.jupiter:junit-jupiter-api") // JUnit 5
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine") // Движок JUnit 5
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher") // Запуск тестов в IDE
+	testImplementation("com.h2database:h2") // In-memory БД для тестов
+	testImplementation("org.mockito:mockito-core:5.11.0") // Mockito для моков
 }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.bootJar {
+	archiveFileName.set("warehouse-app.jar")
+}
+
+tasks {
+	// Конфигурация Javadoc
+	withType<Javadoc> {
+		title = "Warehouse API Documentation"
+		setDestinationDir(file("${buildDir}/docs/javadoc"))
+		options {
+			encoding = "UTF-8"
+			this as StandardJavadocDocletOptions
+			addStringOption("Xdoclint:none", "-quiet") // Отключаем некоторые проверки
+			links("https://docs.oracle.com/en/java/javase/17/docs/api/")
+			links("https://docs.spring.io/spring-framework/docs/current/javadoc-api/")
+			links("https://javadoc.io/doc/org.springdoc/springdoc-openapi-starter-webmvc-ui/latest/")
+		}
+	}
+
+	// Задача для генерации Javadoc вместе со сборкой
+	build {
+		dependsOn("javadoc")
+	}
 }
