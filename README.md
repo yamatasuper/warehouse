@@ -93,7 +93,11 @@ curl -X POST -H "Content-Type: application/json" -d '{
 
 # Генерация Javadoc
 ./gradlew javadoc
-open build/docs/javadoc/index.html
+open build/docs/javadoc/index.html # для мак
+
+cd build/docs/javadoc && python -m http.server 8000
+http://0.0.0.0:8000/ # для линукс
+
 # Результат: build/docs/javadoc/
 ```
 

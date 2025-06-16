@@ -46,6 +46,22 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher") // Запуск тестов в IDE
 	testImplementation("com.h2database:h2") // In-memory БД для тестов
 	testImplementation("org.mockito:mockito-core:5.11.0") // Mockito для моков
+
+	// Add these for better testing support
+	testImplementation("org.mockito:mockito-junit-jupiter") // Better Mockito integration with JUnit 5
+	testImplementation("org.assertj:assertj-core") // Fluent assertions for tests
+	testImplementation("org.hamcrest:hamcrest-library") // Hamcrest matchers
+
+	// For JSON testing in MockMvc
+	testImplementation("org.springframework:spring-test")
+	testImplementation("com.jayway.jsonpath:json-path")
+
+	// For logging in tests (if you want to use SLF4J)
+	testImplementation("org.slf4j:slf4j-api")
+	testRuntimeOnly("ch.qos.logback:logback-classic")
+
+	// For testing with @AutoConfigureMockMvc
+	testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
 }
 
 tasks.withType<Test> {

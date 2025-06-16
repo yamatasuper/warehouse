@@ -19,11 +19,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Тесты для ProductController.
  */
 @WebMvcTest(ProductController.class)
 class ProductControllerTest {
+    private static final Logger logger = LoggerFactory.getLogger(ProductControllerTest.class);
 
     @Autowired
     private MockMvc mockMvc;
@@ -43,21 +47,27 @@ class ProductControllerTest {
     void whenGetExistingProduct_thenReturn200() throws Exception {
         UUID id = UUID.randomUUID();
         ProductResponse response = ProductResponse.builder().id(id).build();
+        logger.info("Starting test: whenGetExistingProduct_thenReturn200 with ID: {}", id);
 
         when(productService.getById(id)).thenReturn(response);
 
         mockMvc.perform(get("/api/products/" + id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id.toString()));
+
+        logger.info("Test completed successfully for ID: {}", id);
     }
 
     @Test
     void whenGetNonExistingProduct_thenReturn404() throws Exception {
         UUID id = UUID.randomUUID();
+        logger.info("Starting test: whenGetNonExistingProduct_thenReturn404 with ID: {}", id);
 
         when(productService.getById(id)).thenThrow(new ResourceNotFoundException("Not found"));
 
         mockMvc.perform(get("/api/products/" + id))
                 .andExpect(status().isNotFound());
+
+        logger.info("Test completed successfully - received 404 for non-existing product ID: {}", id);
     }
 }
