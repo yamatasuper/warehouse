@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Стандартизированный ответ об ошибке для REST API.
  * Содержит информацию о времени возникновения, статусе, типе ошибки и детали.
@@ -16,11 +19,23 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Стандартизированный ответ об ошибке для REST API")
 public class ErrorResponse {
+    @Schema(description = "Временная метка возникновения ошибки", example = "2023-05-20T12:34:56.789Z")
     private ZonedDateTime timestamp;
+
+    @Schema(description = "HTTP статус код", example = "404")
     private int status;
+
+    @Schema(description = "Описание HTTP статуса", example = "Not Found")
     private String error;
+
+    @Schema(description = "Сообщение об ошибке", example = "Ресурс не найден")
     private String message;
+
+    @Schema(description = "Тип исключения", example = "ResourceNotFoundException")
     private String exceptionType;
+
+    @Schema(description = "Детали ошибки (например, ошибки валидации)")
     private List<String> details;
 }

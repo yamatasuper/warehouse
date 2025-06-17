@@ -1,6 +1,5 @@
 package com.example.warehouse.controller;
 
-import com.example.warehouse.controller.ProductController;
 import com.example.warehouse.controller.response.ProductResponse;
 import com.example.warehouse.exception.ResourceNotFoundException;
 import com.example.warehouse.service.ProductService;
@@ -25,7 +24,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Тесты для ProductController.
  */
-@WebMvcTest(ProductController.class)
+@WebMvcTest(ProductControllerImpl.class)
 class ProductControllerTest {
     private static final Logger logger = LoggerFactory.getLogger(ProductControllerTest.class);
 
@@ -63,7 +62,7 @@ class ProductControllerTest {
         UUID id = UUID.randomUUID();
         logger.info("Starting test: whenGetNonExistingProduct_thenReturn404 with ID: {}", id);
 
-        when(productService.getById(id)).thenThrow(new ResourceNotFoundException("Not found"));
+        when(productService.getById(id)).thenThrow(new ResourceNotFoundException(id));
 
         mockMvc.perform(get("/api/products/" + id))
                 .andExpect(status().isNotFound());

@@ -3,7 +3,7 @@ package com.example.warehouse.exception;
 import java.util.UUID;
 
 /**
- * Исключение, выбрасываемое когда запрашиваемый ресурс не найден.
+ * Исключение, выбрасываемое когда запрашиваемый ресурс не найден по артикулу.
  * <p>
  * Соответствует HTTP статусу 404 (Not Found).
  * </p>
@@ -11,13 +11,13 @@ import java.util.UUID;
  * @see org.springframework.web.bind.annotation.ResponseStatus
  * @see org.springframework.http.HttpStatus
  */
-public class ResourceNotFoundException extends RuntimeException {
+public class DeleteResourceException extends RuntimeException {
     /**
      * Создает новое исключение с указанным сообщением.
      *
-     * @param message детальное сообщение об ошибке
+     * @param id детальное сообщение об ошибке
      */
-    public ResourceNotFoundException(UUID id) {
+    public DeleteResourceException(String id) {
         super("Product not found with id: " + id);
     }
 }

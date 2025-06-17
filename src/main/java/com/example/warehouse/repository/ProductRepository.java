@@ -15,4 +15,5 @@ import java.util.UUID;
  * @see org.springframework.data.jpa.repository.JpaRepository
  */
 public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
+    boolean existsByArticle(String article);
 }

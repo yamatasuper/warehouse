@@ -20,72 +20,106 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Тесты для ProductServiceImpl.
- */
 @ExtendWith(MockitoExtension.class)
 class ProductServiceImplTest {
     private static final Logger logger = LoggerFactory.getLogger(ProductServiceImplTest.class);
 
     @Mock
-    private ProductRepository productRepository;
+    private ProductRepository productRepositoryMock;
 
     @Mock
-    private ProductMapper productMapper;
+    private ProductMapper productMapperMock;
 
     @InjectMocks
-    private ProductServiceImpl productService;
+    private ProductServiceImpl productServiceUnderTest;
 
     @Test
     void whenUpdateProduct_thenSaveUpdatedEntity() {
+        // Arrange
         UUID id = UUID.randomUUID();
-        ProductUpdateRequest request = new ProductUpdateRequest();
-        ProductEntity entity = new ProductEntity();
-        ProductEntity updatedEntity = new ProductEntity();
+        ProductUpdateRequest request = ProductUpdateRequest.builder()
+                .name("Updated Name")
+                .price(BigDecimal.valueOf(20.0))
+                .build();
+
+        ProductEntity existingEntity = ProductEntity.builder()
+                .id(id)
+                .name("Original Name")
+                .build();
+
+        ProductEntity expectedSavedEntity = ProductEntity.builder()
+                .id(id)
+                .name("Updated Name")
+                .build();
+
         logger.info("Starting test: whenUpdateProduct_thenSaveUpdatedEntity with ID: {}", id);
 
-        when(productRepository.findById(id)).thenReturn(Optional.of(entity));
-        when(productRepository.save(entity)).thenReturn(updatedEntity);
+        when(productRepositoryMock.findById(id)).thenReturn(Optional.of(existingEntity));
+        when(productRepositoryMock.save(existingEntity)).thenReturn(expectedSavedEntity);
 
-        productService.update(id, request);
+        // Act
+        productServiceUnderTest.update(id, request);
 
-        verify(productMapper).updateEntity(request, entity);
-        verify(productRepository).save(entity);
+        // Assert
+        verify(productMapperMock).updateEntity(request, existingEntity);
+        verify(productRepositoryMock).save(existingEntity);
         logger.info("Test completed successfully - product with ID {} was updated", id);
     }
 
     @Test
     void whenUpdateNonExistingProduct_thenThrowException() {
+        // Arrange
         UUID id = UUID.randomUUID();
         logger.info("Starting test: whenUpdateNonExistingProduct_thenThrowException with ID: {}", id);
 
-        when(productRepository.findById(id)).thenReturn(Optional.empty());
+        when(productRepositoryMock.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> productService.update(id, new ProductUpdateRequest()));
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> productServiceUnderTest.update(id, new ProductUpdateRequest()));
         logger.info("Test completed successfully - ResourceNotFoundException thrown for non-existing ID: {}", id);
     }
 
     @Test
     void whenCreateProduct_thenReturnSavedEntity() {
-        ProductCreateRequest request = new ProductCreateRequest();
-        ProductEntity entity = new ProductEntity();
-        ProductEntity savedEntity = new ProductEntity();
-        ProductResponse response = new ProductResponse();
+        // Arrange
+        ProductCreateRequest request = ProductCreateRequest.builder()
+                .name("New Product")
+                .price(BigDecimal.valueOf(15.99))
+                .build();
+
+        ProductEntity newEntity = ProductEntity.builder()
+                .name("New Product")
+                .build();
+
+        ProductEntity savedEntity = ProductEntity.builder()
+                .id(UUID.randomUUID())
+                .name("New Product")
+                .build();
+
+        ProductResponse expectedResponse = ProductResponse.builder()
+                .id(savedEntity.getId())
+                .name("New Product")
+                .build();
+
         logger.info("Starting test: whenCreateProduct_thenReturnSavedEntity");
 
-        when(productMapper.toEntity(request)).thenReturn(entity);
-        when(productRepository.save(entity)).thenReturn(savedEntity);
-        when(productMapper.toResponse(savedEntity)).thenReturn(response);
+        when(productMapperMock.toEntity(request)).thenReturn(newEntity);
+        when(productRepositoryMock.save(newEntity)).thenReturn(savedEntity);
+        when(productMapperMock.toResponse(savedEntity)).thenReturn(expectedResponse);
 
-        ProductResponse result = productService.create(request);
+        // Act
+        ProductResponse actualResponse = productServiceUnderTest.create(request);
 
-        assertSame(response, result);
-        logger.info("Test completed successfully - new product created with response: {}", response);
+        // Assert
+        assertSame(expectedResponse, actualResponse);
+        logger.info("Test completed successfully - new product created with response: {}", actualResponse);
     }
 }

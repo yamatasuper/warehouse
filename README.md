@@ -70,8 +70,8 @@ curl -X POST -H "Content-Type: application/json" -d '{
 - **PostgreSQL** (production):
   ```properties
   spring.datasource.url=jdbc:postgresql://db:5432/warehouse
-  spring.datasource.username=postgres
-  spring.datasource.password=password
+  spring.datasource.username=
+  spring.datasource.password=
   ```
 
 - **H2** (development):
@@ -118,7 +118,7 @@ docker-compose logs app | grep "SQL create"
 ```
 2. Убедитесь, что в настройках:
 ```properties
-spring.jpa.hibernate.ddl-auto=update
+spring.jpa.hibernate.ddl-auto=validate
 ```
 
 ## 🧪 Swagger

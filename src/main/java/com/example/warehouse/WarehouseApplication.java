@@ -1,5 +1,7 @@
 package com.example.warehouse;
 
+import com.example.warehouse.controller.ProductControllerImpl;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -15,7 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * </ul>
  *
  * @see <a href="http://localhost:8080/swagger-ui.html">Swagger UI</a>
- * @see com.example.warehouse.controller.ProductController
+ * @see ProductControllerImpl
  */
 @SpringBootApplication
 public class WarehouseApplication {
