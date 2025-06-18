@@ -25,12 +25,32 @@ import jakarta.persistence.LockModeType;
  */
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
-    // Кастомные методы
+    /**
+     * Проверяет существование товара с указанным артикулом.
+     *
+     * @param article артикул товара для проверки
+     * @return true - если товар с таким артикулом существует, false - в противном случае
+     */
     boolean existsByArticle(String article);
 
+    /**
+     * Находит товары с ценой выше указанной.
+     *
+     * @param minPrice минимальная цена для фильтрации товаров
+     * @return список товаров, цена которых превышает minPrice
+     */
     @Query("SELECT p FROM ProductEntity p WHERE p.price > :minPrice")
     List<ProductEntity> findExpensiveProducts(@Param("minPrice") BigDecimal minPrice);
 
+    /**
+     * Находит товары для обновления с пессимистичной блокировкой.
+     * <p>
+     * Использует PESSIMISTIC_WRITE блокировку для безопасного обновления данных.
+     * </p>
+     *
+     * @param pageable параметры пагинации
+     * @return список товаров с установленной блокировкой
+     */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM ProductEntity p ORDER BY p.id")
     List<ProductEntity> findProductsForUpdate(Pageable pageable);
