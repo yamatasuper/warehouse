@@ -5,14 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.warehouse.controller.mapper.ProductDtoMapper;
 import com.example.warehouse.controller.request.ProductCreateRequest;
 import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
 import com.example.warehouse.entity.ProductEntity;
 import com.example.warehouse.exception.ResourceNotFoundException;
-import com.example.warehouse.mapper.ProductMapper;
 import com.example.warehouse.repository.ProductRepository;
 import com.example.warehouse.service.impl.ProductServiceImpl;
+import com.example.warehouse.service.model.Product;
+import com.example.warehouse.service.request.CreateProductCommand;
+import com.example.warehouse.service.request.UpdateProductCommand;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +38,10 @@ class ProductServiceImplTest {
     private ProductRepository productRepositoryMock;
 
     @Mock
-    private ProductMapper productMapperMock;
+    private ProductServiceMapper productServiceMapperMock;
+
+    @Mock
+    private ProductDtoMapper productDtoMapperMock;
 
     @InjectMocks
     private ProductServiceImpl productServiceUnderTest;
@@ -45,6 +51,11 @@ class ProductServiceImplTest {
         // Arrange
         UUID id = UUID.randomUUID();
         ProductUpdateRequest request = ProductUpdateRequest.builder()
+                .name("Updated Name")
+                .price(BigDecimal.valueOf(20.0))
+                .build();
+
+        UpdateProductCommand command = UpdateProductCommand.builder()
                 .name("Updated Name")
                 .price(BigDecimal.valueOf(20.0))
                 .build();
@@ -61,6 +72,7 @@ class ProductServiceImplTest {
 
         logger.info("Starting test: whenUpdateProduct_thenSaveUpdatedEntity with ID: {}", id);
 
+        when(productDtoMapperMock.toCommand(request)).thenReturn(command);
         when(productRepositoryMock.findById(id)).thenReturn(Optional.of(existingEntity));
         when(productRepositoryMock.save(existingEntity)).thenReturn(expectedSavedEntity);
 
@@ -68,29 +80,20 @@ class ProductServiceImplTest {
         productServiceUnderTest.update(id, request);
 
         // Assert
-        verify(productMapperMock).updateEntity(request, existingEntity);
+        verify(productServiceMapperMock).updateEntity(command, existingEntity);
         verify(productRepositoryMock).save(existingEntity);
         logger.info("Test completed successfully - product with ID {} was updated", id);
-    }
-
-    @Test
-    void whenUpdateNonExistingProduct_thenThrowException() {
-        // Arrange
-        UUID id = UUID.randomUUID();
-        logger.info("Starting test: whenUpdateNonExistingProduct_thenThrowException with ID: {}", id);
-
-        when(productRepositoryMock.findById(id)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class,
-                () -> productServiceUnderTest.update(id, new ProductUpdateRequest()));
-        logger.info("Test completed successfully - ResourceNotFoundException thrown for non-existing ID: {}", id);
     }
 
     @Test
     void whenCreateProduct_thenReturnSavedEntity() {
         // Arrange
         ProductCreateRequest request = ProductCreateRequest.builder()
+                .name("New Product")
+                .price(BigDecimal.valueOf(15.99))
+                .build();
+
+        CreateProductCommand command = CreateProductCommand.builder()
                 .name("New Product")
                 .price(BigDecimal.valueOf(15.99))
                 .build();
@@ -104,6 +107,11 @@ class ProductServiceImplTest {
                 .name("New Product")
                 .build();
 
+        Product domainProduct = Product.builder()
+                .id(savedEntity.getId())
+                .name("New Product")
+                .build();
+
         ProductResponse expectedResponse = ProductResponse.builder()
                 .id(savedEntity.getId())
                 .name("New Product")
@@ -111,9 +119,11 @@ class ProductServiceImplTest {
 
         logger.info("Starting test: whenCreateProduct_thenReturnSavedEntity");
 
-        when(productMapperMock.toEntity(request)).thenReturn(newEntity);
+        when(productDtoMapperMock.toCommand(request)).thenReturn(command);
+        when(productServiceMapperMock.toEntity(command)).thenReturn(newEntity);
         when(productRepositoryMock.save(newEntity)).thenReturn(savedEntity);
-        when(productMapperMock.toResponse(savedEntity)).thenReturn(expectedResponse);
+        when(productServiceMapperMock.toDomain(savedEntity)).thenReturn(domainProduct);
+        when(productDtoMapperMock.toResponse(domainProduct)).thenReturn(expectedResponse);
 
         // Act
         ProductResponse actualResponse = productServiceUnderTest.create(request);

@@ -4,6 +4,7 @@ import com.example.warehouse.enums.ProductCategoryEnum;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -94,5 +95,5 @@ public class ProductEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     @Schema(description = "Дата и время создания записи о товаре",
             example = "2023-06-10T09:15:22+03:00")
-    private ZonedDateTime createdAt;
+    private LocalDateTime createdAt;
 }

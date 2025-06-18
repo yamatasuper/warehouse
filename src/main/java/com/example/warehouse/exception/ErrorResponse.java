@@ -3,6 +3,8 @@ package com.example.warehouse.exception;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,12 +26,14 @@ public class ErrorResponse {
     @Schema(description = "Временная метка возникновения ошибки", example = "2023-05-20T12:34:56.789Z")
     private ZonedDateTime timestamp;
 
+    @NotNull
     @Schema(description = "HTTP статус код", example = "404")
     private int status;
 
     @Schema(description = "Описание HTTP статуса", example = "Not Found")
     private String error;
 
+    @NotBlank
     @Schema(description = "Сообщение об ошибке", example = "Ресурс не найден")
     private String message;
 

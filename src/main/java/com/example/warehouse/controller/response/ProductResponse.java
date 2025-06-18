@@ -51,8 +51,8 @@ public class ProductResponse {
     private BigDecimal quantity;
 
     @Schema(description = "Дата и время последнего изменения количества", example = "2023-05-15T14:30:45+03:00")
-    private LocalDateTime lastQuantityChange;
+    private ZonedDateTime lastQuantityChange;
 
     @Schema(description = "Дата и время создания записи о товаре", example = "2023-05-10T09:15:22+03:00")
-    private ZonedDateTime createdAt;
+    private LocalDateTime createdAt;
 }

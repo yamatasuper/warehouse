@@ -5,10 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
+import java.security.InvalidParameterException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,29 +52,6 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Обрабатывает исключение ResourceNotFoundException.
-     *
-     * @param ex исключение ResourceNotFoundException
-     * @return ResponseEntity с ErrorResponse
-     */
-    @Operation(summary = "Обработка ошибки 'Ресурс не найден'")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "404", description = "Ресурс не найден")
-    })
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
-        ErrorResponse response = ErrorResponse.builder()
-                .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
-                .status(HttpStatus.NOT_FOUND.value())
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .message(ex.getMessage())
-                .exceptionType(ex.getClass().getSimpleName())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    /**
      * Обрабатывает исключения валидации.
      *
      * @param ex исключение MethodArgumentNotValidException
@@ -98,5 +79,41 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.badRequest().body(response);
+    }
+
+    /**
+     * Обрабатывает исключение DuplicateResourceException.
+     *
+     * @param ex исключение DuplicateResourceException
+     * @return ResponseEntity с ErrorResponse
+     */
+    @Operation(summary = "Обработка ошибки дублирования ресурса")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "409", description = "Конфликт: ресурс уже существует")
+    })
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
+        ErrorResponse response = ErrorResponse.builder()
+                .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
+                .status(HttpStatus.CONFLICT.value())
+                .error(HttpStatus.CONFLICT.getReasonPhrase())
+                .message(ex.getMessage())
+                .exceptionType(ex.getClass().getSimpleName())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(InvalidParameterException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidParameter(InvalidParameterException ex) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(ZonedDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(ex.getMessage())
+                .exceptionType(ex.getClass().getSimpleName())
+                .build();
+
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 }
