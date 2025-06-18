@@ -14,8 +14,21 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 1000
+        order_updates: true
+        order_inserts: true
+        query:
+          in_clause_parameter_padding: true
+  scheduling:
+    enabled: true
+    optimization: false
 
 logging:
   level:
     root: INFO
     com.example.warehouse: DEBUG
+    org.springframework.scheduling: DEBUG
+    org.springframework.transaction: DEBUG

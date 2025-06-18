@@ -62,6 +62,16 @@ dependencies {
 
 	// For testing with @AutoConfigureMockMvc
 	testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
+
+	// Micrometer for metrics
+	implementation("io.micrometer:micrometer-core")
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+	// db changelog
+	implementation("org.liquibase:liquibase-core:4.22.0")
+
+	// Загрузка переменных из .env
+	implementation("io.github.cdimascio:dotenv-java:3.0.0")
 }
 
 tasks.withType<Test> {

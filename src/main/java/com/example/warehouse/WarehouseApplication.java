@@ -4,6 +4,9 @@ import com.example.warehouse.controller.ProductControllerImpl;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 /**
  * Главный класс приложения Warehouse Management System.
@@ -20,6 +23,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @see ProductControllerImpl
  */
 @SpringBootApplication
+@EnableScheduling
 public class WarehouseApplication {
 
 	/**
@@ -29,6 +33,9 @@ public class WarehouseApplication {
 	 * @see <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config">Spring Boot Externalized Configuration</a>
 	 */
 	public static void main(String[] args) {
+		Dotenv dotenv = Dotenv.configure().load();
+		System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
+		System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
 		SpringApplication.run(WarehouseApplication.class, args);
 	}
 }
