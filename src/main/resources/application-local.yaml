@@ -1,11 +1,13 @@
 app:
   scheduling:
     enabled: true
+    optimization: true
   scheduler:
     price-update:
       enabled: true
       interval-ms: 60000 # 1 минута (60 секунд)
       batch-size: 1000   # Размер батча для обработки
+
 spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -28,6 +30,29 @@ spring:
         jdbc:
           batch_size: 1000 # Оптимизация для пакетных операций
 
+# Добавленные настройки для Actuator и метрик
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics  # Включенные endpoints
+      base-path: /actuator  # Базовый путь (по умолчанию)
+  endpoint:
+    health:
+      show-details: always  # Подробная информация о health
+    prometheus:
+      enabled: true  # Включение Prometheus endpoint
+  metrics:
+    tags:
+      application: warehouse-app  # Глобальные теги для всех метрик
+    export:
+      prometheus:
+        enabled: true  # Включение экспорта в Prometheus
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true  # Гистограммы для HTTP-запросов
+
 logging:
   level:
     com.example.warehouse: DEBUG
+    org.springframework.boot.actuate: INFO  # Логирование для Actuator

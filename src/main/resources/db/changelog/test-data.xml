@@ -5,42 +5,44 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-    <!-- Используем встроенную функцию H2 вместо создания своей -->
-    <changeSet id="insert-test-products" author="yourname">
+    <changeSet id="insert-test-products" author="movchanart">
+        <!-- Первый продукт -->
         <insert tableName="products">
             <column name="id" valueComputed="RANDOM_UUID()"/>
             <column name="name" value="Смартфон Samsung Galaxy S23"/>
             <column name="article" value="SM-S911BZKDSEK"/>
             <column name="description" value="Флагманский смартфон с динамическим AMOLED 2X экраном 6.1&quot;"/>
             <column name="category" value="ELECTRONICS"/>
-            <column name="price" value="799.99"/>
-            <column name="quantity" value="25.50"/>
-            <column name="last_quantity_change" valueComputed="${now}"/>
-            <column name="created_at" valueComputed="${now}"/>
+            <column name="price" valueNumeric="799.99"/>
+            <column name="quantity" valueNumeric="25"/>
+            <column name="last_quantity_change" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
         </insert>
 
+        <!-- Второй продукт -->
         <insert tableName="products">
             <column name="id" valueComputed="RANDOM_UUID()"/>
             <column name="name" value="Ноутбук Apple MacBook Pro 16&quot;"/>
             <column name="article" value="MK183LL/A"/>
             <column name="description" value="Профессиональный ноутбук с процессором M2 Pro"/>
             <column name="category" value="ELECTRONICS"/>
-            <column name="price" value="2499.00"/>
-            <column name="quantity" value="10.00"/>
-            <column name="last_quantity_change" valueComputed="${now}"/>
-            <column name="created_at" valueComputed="${now}"/>
+            <column name="price" valueNumeric="2499.00"/>
+            <column name="quantity" valueNumeric="10"/>
+            <column name="last_quantity_change" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
         </insert>
 
+        <!-- Третий продукт -->
         <insert tableName="products">
             <column name="id" valueComputed="RANDOM_UUID()"/>
             <column name="name" value="Кофеварка DeLonghi Magnifica S"/>
             <column name="article" value="ECAM22.110.B"/>
             <column name="description" value="Автоматическая кофеварка с капучинатором"/>
             <column name="category" value="ELECTRONICS"/>
-            <column name="price" value="549.99"/>
-            <column name="quantity" value="15.00"/>
-            <column name="last_quantity_change" valueComputed="${now}"/>
-            <column name="created_at" valueComputed="${now}"/>
+            <column name="price" valueNumeric="549.99"/>
+            <column name="quantity" valueNumeric="15"/>
+            <column name="last_quantity_change" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

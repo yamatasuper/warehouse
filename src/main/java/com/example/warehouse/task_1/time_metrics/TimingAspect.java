@@ -1,4 +1,4 @@
-package com.example.warehouse.task_1;
+package com.example.warehouse.task_1.time_metrics;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

@@ -1,11 +1,11 @@
-package com.example.warehouse.task_1;
+package com.example.warehouse.task_1.schedulers;
 
 import com.example.warehouse.entity.ProductEntity;
 import com.example.warehouse.repository.ProductRepository;
 import com.example.warehouse.service.ProductServiceMapper;
+import com.example.warehouse.task_1.time_metrics.Timed;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -33,10 +33,10 @@ public class SimpleProductPriceScheduler implements ProductPriceScheduler {
     private final ProductRepository productRepository;
     private final ProductServiceMapper productServiceMapper;
 
-    @Value("${app.scheduler.price-update.interval-ms}")
+    @Value("${app.scheduler.price-update.interval-ms:60000}")
     private long intervalMs; // Интервал между запусками в миллисекундах
 
-    @Value("${app.scheduler.price-update.batch-size}")
+    @Value("${app.scheduler.price-update.batch-size:1000}")
     private int batchSize; // Размер пакета (не используется в этой реализации)
 
     /**
@@ -48,7 +48,7 @@ public class SimpleProductPriceScheduler implements ProductPriceScheduler {
      * </p>
      */
     @Override
-    @Scheduled(fixedRateString = "${app.scheduler.price-update.interval-ms}")
+    @Scheduled(fixedRateString = "${app.scheduler.price-update.interval-ms:60000}")
     @Transactional
     @Timed
     public void updateProductPrices() {

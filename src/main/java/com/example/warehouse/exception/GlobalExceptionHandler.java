@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,14 +32,26 @@ public class GlobalExceptionHandler {
 
     /**
      * Обрабатывает все неперехваченные исключения.
-     *
-     * @param ex исключение
-     * @return ResponseEntity с ErrorResponse
      */
     @Operation(summary = "Обработка внутренних ошибок сервера")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
-    })
+    @ApiResponse(
+            responseCode = "500",
+            description = "Внутренняя ошибка сервера",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            value = """
+                {
+                  "timestamp": "2023-05-20T12:34:56.789Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Произошла непредвиденная ошибка",
+                  "exceptionType": "Exception"
+                }
+                """
+                    )
+            )
+    )
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllUncaughtException(Exception ex) {
         ErrorResponse response = ErrorResponse.builder()
@@ -53,14 +67,27 @@ public class GlobalExceptionHandler {
 
     /**
      * Обрабатывает исключения валидации.
-     *
-     * @param ex исключение MethodArgumentNotValidException
-     * @return ResponseEntity с ErrorResponse
      */
     @Operation(summary = "Обработка ошибок валидации")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "400", description = "Некорректный запрос")
-    })
+    @ApiResponse(
+            responseCode = "400",
+            description = "Некорректный запрос",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            value = """
+                {
+                  "timestamp": "2023-05-20T12:34:56.789Z",
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "Validation failed",
+                  "exceptionType": "MethodArgumentNotValidException",
+                  "details": ["fieldName: must not be blank"]
+                }
+                """
+                    )
+            )
+    )
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult()
@@ -83,14 +110,26 @@ public class GlobalExceptionHandler {
 
     /**
      * Обрабатывает исключение DuplicateResourceException.
-     *
-     * @param ex исключение DuplicateResourceException
-     * @return ResponseEntity с ErrorResponse
      */
     @Operation(summary = "Обработка ошибки дублирования ресурса")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "409", description = "Конфликт: ресурс уже существует")
-    })
+    @ApiResponse(
+            responseCode = "409",
+            description = "Конфликт: ресурс уже существует",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            value = """
+                {
+                  "timestamp": "2023-05-20T12:34:56.789Z",
+                  "status": 409,
+                  "error": "Conflict",
+                  "message": "Ресурс с таким именем уже существует",
+                  "exceptionType": "DuplicateResourceException"
+                }
+                """
+                    )
+            )
+    )
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
         ErrorResponse response = ErrorResponse.builder()
@@ -104,10 +143,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @Operation(summary = "Обработка неверного параметра")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Некорректный параметр",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            value = """
+                {
+                  "timestamp": "2023-05-20T12:34:56.789Z",
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "Неверное значение параметра",
+                  "exceptionType": "InvalidParameterException"
+                }
+                """
+                    )
+            )
+    )
     @ExceptionHandler(InvalidParameterException.class)
     public ResponseEntity<ErrorResponse> handleInvalidParameter(InvalidParameterException ex) {
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(ZonedDateTime.now())
+                .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .message(ex.getMessage())
@@ -115,5 +173,38 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    // Добавьте обработчик для 404 ошибки, если у вас есть такой исключение
+    @Operation(summary = "Обработка отсутствующего ресурса")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Ресурс не найден",
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(
+                            value = """
+                {
+                  "timestamp": "2023-05-20T12:34:56.789Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Ресурс не найден",
+                  "exceptionType": "ResourceNotFoundException"
+                }
+                """
+                    )
+            )
+    )
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+        ErrorResponse response = ErrorResponse.builder()
+                .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .message(ex.getMessage())
+                .exceptionType(ex.getClass().getSimpleName())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 }

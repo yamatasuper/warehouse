@@ -1,7 +1,6 @@
 package com.example.warehouse.service;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,7 +9,6 @@ import com.example.warehouse.controller.request.ProductCreateRequest;
 import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
 import com.example.warehouse.entity.ProductEntity;
-import com.example.warehouse.exception.ResourceNotFoundException;
 import com.example.warehouse.repository.ProductRepository;
 import com.example.warehouse.service.impl.ProductServiceImpl;
 import com.example.warehouse.service.model.Product;

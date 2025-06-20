@@ -64,8 +64,9 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
 
 	// Micrometer for metrics
-	implementation("io.micrometer:micrometer-core")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	implementation("io.micrometer:micrometer-core")
+	implementation("io.micrometer:micrometer-registry-prometheus")
 
 	// db changelog
 	implementation("org.liquibase:liquibase-core:4.22.0")

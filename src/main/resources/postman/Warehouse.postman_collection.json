@@ -55,15 +55,15 @@
             "value": "application/json"
           }
         ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"MacBook Pro Updated\",\n  \"description\": \"16-inch M2 Max (Updated)\",\n  \"category\": \"ELECTRONICS\",\n  \"price\": 3199.99,\n  \"quantity\": 5\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
+      "body": {
+        "mode": "raw",
+        "raw": "{\n  \"name\": \"MacBook Pro Updated\",\n  \"article\": \"MK183LL/A\",\n  \"description\": \"16-inch M2 Max (Updated)\",\n  \"category\": \"ELECTRONICS\",\n  \"price\": 3199.99,\n  \"quantity\": 5\n}",
+        "options": {
+          "raw": {
+            "language": "json"
           }
-        },
+        }
+      },
         "url": {
           "raw": "{{base_url}}/api/products/{{product_id}}",
           "host": ["{{base_url}}"],

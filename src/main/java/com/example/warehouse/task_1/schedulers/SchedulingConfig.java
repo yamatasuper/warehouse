@@ -1,4 +1,4 @@
-package com.example.warehouse.task_1;
+package com.example.warehouse.task_1.schedulers;
 
 import com.example.warehouse.repository.ProductRepository;
 import com.example.warehouse.service.ProductServiceMapper;
@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableScheduling
 @ConditionalOnProperty(name = "app.scheduling.enabled", havingValue = "true")
+//@ConditionalOnProfile("!local")
 @RequiredArgsConstructor
 public class SchedulingConfig {
 

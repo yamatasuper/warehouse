@@ -1,11 +1,11 @@
-package com.example.warehouse.task_1;
+package com.example.warehouse.task_1.schedulers;
 
 import com.example.warehouse.entity.ProductEntity;
 import com.example.warehouse.repository.ProductRepository;
 import com.example.warehouse.service.ProductServiceMapper;
+import com.example.warehouse.task_1.time_metrics.Timed;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
  * - Автоматическое масштабирование цены на 5%
  * </p>
  */
-@Service
 @RequiredArgsConstructor
 @Slf4j
 public class OptimizedProductPriceScheduler implements ProductPriceScheduler {
@@ -45,7 +44,7 @@ public class OptimizedProductPriceScheduler implements ProductPriceScheduler {
     /**
      * Размер пакета для обработки продуктов
      */
-    @Value("${app.scheduler.price-update.batch-size}")
+    @Value("${app.scheduler.price-update.batch-size: 1000}")
     private int batchSize;
 
     /**
@@ -60,7 +59,7 @@ public class OptimizedProductPriceScheduler implements ProductPriceScheduler {
      * </p>
      */
     @Override
-    @Scheduled(fixedRateString = "${app.scheduler.price-update.interval-ms}")
+    @Scheduled(fixedRateString = "${app.scheduler.price-update.interval-ms:60000}")
     @Timed("optimizedPriceUpdate")
     @Transactional
     public void updateProductPrices() {

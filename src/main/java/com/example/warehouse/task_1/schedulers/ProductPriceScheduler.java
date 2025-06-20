@@ -1,4 +1,4 @@
-package com.example.warehouse.task_1;
+package com.example.warehouse.task_1.schedulers;
 
 /**
  * Интерфейс для сервиса обновления цен продуктов.
