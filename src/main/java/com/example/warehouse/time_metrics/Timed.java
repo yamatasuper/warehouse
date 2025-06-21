@@ -1,4 +1,4 @@
-package com.example.warehouse.task_1.time_metrics;
+package com.example.warehouse.time_metrics;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

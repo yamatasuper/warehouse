@@ -1,9 +1,9 @@
-package com.example.warehouse.task_1.schedulers;
+package com.example.warehouse.schedulers;
 
 import com.example.warehouse.entity.ProductEntity;
 import com.example.warehouse.repository.ProductRepository;
 import com.example.warehouse.service.ProductServiceMapper;
-import com.example.warehouse.task_1.time_metrics.Timed;
+import com.example.warehouse.time_metrics.Timed;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -53,16 +53,27 @@ public class SimpleProductPriceScheduler implements ProductPriceScheduler {
     @Timed
     public void updateProductPrices() {
         log.debug("Начало обновления цен для всех продуктов");
-        List<ProductEntity> products = productRepository.findAll();
-        log.debug("Найдено {} продуктов для обновления", products.size());
+        long startTime = System.currentTimeMillis();
 
-        products.forEach(product -> {
-            BigDecimal newPrice = calculateNewPrice(product.getPrice());
-            product.setPrice(newPrice);
-        });
+        try {
+            List<ProductEntity> products = productRepository.findAll();
+            log.debug("Найдено {} продуктов для обновления", products.size());
 
-        productRepository.saveAll(products);
-        log.debug("Обновление цен успешно завершено");
+            products.forEach(product -> {
+                BigDecimal newPrice = calculateNewPrice(product.getPrice());
+                product.setPrice(newPrice);
+            });
+
+            productRepository.saveAll(products);
+
+            long executionTime = System.currentTimeMillis() - startTime;
+            log.info("Обновление цен успешно завершено. Время выполнения: {} мс", executionTime);
+
+        } catch (Exception e) {
+            long executionTime = System.currentTimeMillis() - startTime;
+            log.error("Ошибка при обновлении цен. Время выполнения до ошибки: {} мс", executionTime, e);
+            throw e;
+        }
     }
 
     /**

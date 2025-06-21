@@ -54,4 +54,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM ProductEntity p ORDER BY p.id")
     List<ProductEntity> findProductsForUpdate(Pageable pageable);
+
+    @Query(value = "SELECT * FROM products ORDER BY id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<ProductEntity> findProductsForUpdate(@Param("offset") int offset, @Param("limit") int limit);
 }

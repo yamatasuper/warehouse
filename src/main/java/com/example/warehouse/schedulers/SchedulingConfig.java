@@ -1,4 +1,4 @@
-package com.example.warehouse.task_1.schedulers;
+package com.example.warehouse.schedulers;
 
 import com.example.warehouse.repository.ProductRepository;
 import com.example.warehouse.service.ProductServiceMapper;
@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import jakarta.persistence.EntityManager;
@@ -31,6 +32,7 @@ public class SchedulingConfig {
     private final ProductRepository productRepository;
     private final ProductServiceMapper productServiceMapper;
     private final EntityManager entityManager; // Требуется только для оптимизированной версии
+    private final JdbcTemplate jdbcTemplate;
 
     /**
      * Флаг активации оптимизированной версии планировщика.
@@ -69,6 +71,6 @@ public class SchedulingConfig {
     @Bean
     @ConditionalOnProperty(name = "app.scheduling.optimization", havingValue = "true")
     public ProductPriceScheduler optimizedProductPriceScheduler() {
-        return new OptimizedProductPriceScheduler(productRepository, productServiceMapper, entityManager);
+        return new OptimizedProductPriceScheduler(productRepository, entityManager, jdbcTemplate);
     }
 }
