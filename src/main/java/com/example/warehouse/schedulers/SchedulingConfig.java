@@ -35,13 +35,6 @@ public class SchedulingConfig {
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * Флаг активации оптимизированной версии планировщика.
-     * По умолчанию: false.
-     */
-    @Value("${app.scheduling.optimization:false}")
-    private boolean optimizationEnabled;
-
-    /**
      * Создает простую версию планировщика цен.
      * <p>
      * Активируется когда:
@@ -52,8 +45,7 @@ public class SchedulingConfig {
      * @return экземпляр SimpleProductPriceScheduler
      */
     @Bean
-    @ConditionalOnMissingBean(ProductPriceScheduler.class)
-    @ConditionalOnExpression("!${app.scheduling.optimization:false}")
+    @ConditionalOnProperty(name = "app.scheduling.optimization", havingValue = "false")
     public ProductPriceScheduler simpleProductPriceScheduler() {
         return new SimpleProductPriceScheduler(productRepository, productServiceMapper);
     }

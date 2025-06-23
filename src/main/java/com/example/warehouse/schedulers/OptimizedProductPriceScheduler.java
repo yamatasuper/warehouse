@@ -44,11 +44,8 @@ public class OptimizedProductPriceScheduler implements ProductPriceScheduler {
     @Value("${app.scheduler.price-update.batch-size:10000}")
     private int batchSize;
 
-    @Value("${app.scheduler.price-update.bulk-threshold:500000}")
-    private int bulkThreshold;
-
     @Override
-    @Scheduled(fixedRateString = "${app.scheduler.price-update.interval-ms:3600000}")
+    @Scheduled(fixedRateString = "${app.scheduler.price-update.interval-ms:60000}")
     @Timed("optimizedPriceUpdate")
     @Transactional
     public void updateProductPrices() {
@@ -58,13 +55,8 @@ public class OptimizedProductPriceScheduler implements ProductPriceScheduler {
         log.info("Начало обновления цен. Всего записей: {}", totalCount);
 
         try {
-            if (totalCount > bulkThreshold) {
-                log.info("Обнаружено {} записей - используется bulk-обновление", totalCount);
-                bulkUpdatePrices();
-            } else {
                 log.info("Используется пакетное обновление (batch)");
                 batchUpdatePrices();
-            }
 
             long executionTime = System.currentTimeMillis() - startTime;
             log.info("Обновление цен завершено. Обработано {} записей за {} мс ({} записей/сек)",

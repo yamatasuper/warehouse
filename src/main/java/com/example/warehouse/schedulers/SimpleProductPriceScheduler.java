@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * - Логирует процесс обновления
  * </p>
  */
-@Service
+//@Service
 @RequiredArgsConstructor
 @Slf4j
 public class SimpleProductPriceScheduler implements ProductPriceScheduler {

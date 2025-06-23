@@ -2,16 +2,14 @@ app:
   scheduling:
     enabled: true
     optimization: true  # Включаем оптимизированный режим
-    mode: batch        # Режим работы (simple/batch/bulk)
-    batch-size: 20000  # Увеличиваем размер батча
-    bulk-threshold: 500000 # Порог для автоматического переключения в bulk-режим
 
   scheduler:
     price-update:
-      enabled: true
-      interval-ms: 180000  # 1 час (увеличиваем интервал)
+      interval-ms: 60000  # 1 час (увеличиваем интервал)
       initial-delay-ms: 10000 # Задержка перед первым запуском
       batch-size: 20000     # Согласовано с optimization.batch-size
+      mode: batch        # Режим работы (simple/batch/bulk)
+#      bulk-threshold: 500000 # Порог для автоматического переключения в bulk-режим
 
 spring:
   liquibase:
