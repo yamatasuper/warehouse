@@ -83,6 +83,12 @@ tasks.bootJar {
 	archiveFileName.set("warehouse-app.jar")
 }
 
+// Для Spring Boot приложения через bootRun
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+	jvmArgs = listOf("-Xmx500m", "-Xms500m")
+}
+
+
 tasks {
 	// Конфигурация Javadoc
 	withType<Javadoc> {
