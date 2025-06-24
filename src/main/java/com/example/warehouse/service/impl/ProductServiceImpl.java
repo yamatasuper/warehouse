@@ -10,12 +10,18 @@ import com.example.warehouse.exception.DuplicateResourceException;
 import com.example.warehouse.exception.InvalidParameterException;
 import com.example.warehouse.exception.ResourceNotFoundException;
 import com.example.warehouse.repository.ProductRepository;
+import com.example.warehouse.search.ProductSpecification;
+import com.example.warehouse.search.SearchCriteria;
+import com.example.warehouse.search.SearchCriteriaValidator;
 import com.example.warehouse.service.ProductService;
 import com.example.warehouse.service.ProductServiceMapper;
 import com.example.warehouse.service.model.Product;
 import com.example.warehouse.service.request.CreateProductCommand;
 import com.example.warehouse.service.request.UpdateProductCommand;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,6 +43,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductServiceMapper productServiceMapper;
     private final ProductDtoMapper productDtoMapper;
+
+    private final SearchCriteriaValidator searchCriteriaValidator;
 
     /**
      * Создает новый продукт на основе переданных данных.
@@ -202,5 +210,31 @@ public class ProductServiceImpl implements ProductService {
         if (request.getName() != null && request.getName().isBlank()) {
             throw new InvalidParameterException("Name cannot be empty");
         }
+    }
+
+    @Override
+    public Page<ProductResponse> searchProducts(List<SearchCriteria> criteria, int page, int size) {
+
+        if (criteria != null && !criteria.isEmpty()) {
+            searchCriteriaValidator.validate(criteria, ProductEntity.class);
+        }
+
+
+        if (criteria == null || criteria.isEmpty()) {
+            return productRepository.findAll(PageRequest.of(page, size))
+                    .map(productDtoMapper::toResponseEntity);
+        }
+
+        Specification<ProductEntity> spec = createSpecification(criteria.get(0));
+        for (int i = 1; i < criteria.size(); i++) {
+            spec = spec.and(createSpecification(criteria.get(i)));
+        }
+
+        return productRepository.findAll(spec, PageRequest.of(page, size))
+                .map(productDtoMapper::toResponseEntity);
+    }
+
+    private Specification<ProductEntity> createSpecification(SearchCriteria criteria) {
+        return new ProductSpecification(criteria);
     }
 }

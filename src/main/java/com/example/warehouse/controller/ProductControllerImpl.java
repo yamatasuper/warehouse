@@ -3,8 +3,10 @@ package com.example.warehouse.controller;
 import com.example.warehouse.controller.request.ProductCreateRequest;
 import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
+import com.example.warehouse.search.SearchCriteria;
 import com.example.warehouse.service.ProductService;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -77,5 +80,13 @@ public class ProductControllerImpl implements ProductController {
     @Override
     public ResponseEntity<List<ProductResponse>> getAll() {
         return ResponseEntity.ok(productService.getAll());
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<Page<ProductResponse>> searchProducts(
+            @RequestBody @Valid List<SearchCriteria> criteria,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(productService.searchProducts(criteria, page, size));
     }
 }

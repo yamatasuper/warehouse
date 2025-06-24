@@ -3,11 +3,14 @@ package com.example.warehouse.controller;
 import com.example.warehouse.controller.request.ProductCreateRequest;
 import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
+import com.example.warehouse.search.SearchCriteria;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,4 +66,16 @@ public interface ProductController {
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     ResponseEntity<List<ProductResponse>> getAll();
+
+    @Operation(summary = "Поиск товаров по критериям")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Товары найдены"),
+            @ApiResponse(responseCode = "400", description = "Невалидные параметры запроса"),
+            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
+    @PostMapping("/search")
+    ResponseEntity<Page<ProductResponse>> searchProducts(
+            @RequestBody @Valid List<SearchCriteria> criteria,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size);
 }

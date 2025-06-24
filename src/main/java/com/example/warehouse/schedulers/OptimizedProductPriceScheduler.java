@@ -1,5 +1,7 @@
 package com.example.warehouse.schedulers;
 
+import com.example.warehouse.time_metrics.Timed;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -28,6 +30,7 @@ public class OptimizedProductPriceScheduler implements ProductPriceScheduler {
 
     @Override
     @Scheduled(fixedRateString = "${app.scheduler.price-update.interval-ms:60000}")
+    @Timed("optimizedPriceUpdate")
     @Transactional
     public void updateProductPrices() {
         long startTime = System.currentTimeMillis();

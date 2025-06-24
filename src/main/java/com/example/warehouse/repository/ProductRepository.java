@@ -4,6 +4,7 @@ import com.example.warehouse.entity.ProductEntity;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,7 +25,8 @@ import jakarta.persistence.LockModeType;
  * @see org.springframework.data.jpa.repository.JpaRepository
  */
 @Repository
-public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
+public interface ProductRepository extends JpaRepository<ProductEntity, UUID>,
+        JpaSpecificationExecutor<ProductEntity> {
     /**
      * Проверяет существование товара с указанным артикулом.
      *

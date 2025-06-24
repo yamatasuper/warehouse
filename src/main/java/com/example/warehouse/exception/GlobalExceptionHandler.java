@@ -1,5 +1,6 @@
 package com.example.warehouse.exception;
 
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -195,6 +196,7 @@ public class GlobalExceptionHandler {
                     )
             )
     )
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         ErrorResponse response = ErrorResponse.builder()
