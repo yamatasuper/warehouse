@@ -1,120 +1,93 @@
 package com.example.warehouse.schedulers;
 
-import com.example.warehouse.entity.ProductEntity;
-import com.example.warehouse.repository.ProductRepository;
-import com.example.warehouse.service.ProductServiceMapper;
-import com.example.warehouse.time_metrics.Timed;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
+import java.sql.*;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Сервис для оптимизированного обновления цен продуктов по расписанию.
- * <p>
- * Основные особенности:
- * - Пакетная обработка для снижения нагрузки на БД
- * - Поддержка транзакций
- * - Логирование изменений в CSV файл
- * - Автоматическое масштабирование цены на 5%
- * </p>
- */
 @RequiredArgsConstructor
 @Slf4j
 public class OptimizedProductPriceScheduler implements ProductPriceScheduler {
 
-    private final ProductRepository productRepository;
-    private final EntityManager entityManager;
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${app.scheduler.price-update.batch-size:10000}")
     private int batchSize;
 
+    @Value("${app.scheduler.price-update.fetch-size:1000}")
+    private int fetchSize;
+
     @Override
     @Scheduled(fixedRateString = "${app.scheduler.price-update.interval-ms:60000}")
-    @Timed("optimizedPriceUpdate")
     @Transactional
     public void updateProductPrices() {
         long startTime = System.currentTimeMillis();
-        long totalCount = productRepository.count();
-
-        log.info("Начало обновления цен. Всего записей: {}", totalCount);
+        AtomicLong totalProcessed = new AtomicLong(0);
 
         try {
-                log.info("Используется пакетное обновление (batch)");
-                batchUpdatePrices();
+            jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
+                connection.setAutoCommit(false);
+
+                try (PreparedStatement selectStmt = connection.prepareStatement(
+                        "SELECT id, price FROM products WHERE price IS NOT NULL FOR UPDATE",
+                        ResultSet.TYPE_FORWARD_ONLY,
+                        ResultSet.CONCUR_UPDATABLE)) {
+
+                    selectStmt.setFetchSize(fetchSize);
+
+                    try (ResultSet rs = selectStmt.executeQuery()) {
+                        try (PreparedStatement updateStmt = connection.prepareStatement(
+                                "UPDATE products SET price = ? WHERE id = ?")) {
+
+                            int batchCount = 0;
+
+                            while (rs.next()) {
+                                UUID id = (UUID) rs.getObject("id"); // Получаем ID как UUID
+                                BigDecimal currentPrice = rs.getBigDecimal("price");
+                                BigDecimal newPrice = currentPrice.multiply(BigDecimal.valueOf(1.05));
+
+                                updateStmt.setBigDecimal(1, newPrice);
+                                updateStmt.setObject(2, id); // Устанавливаем UUID параметр
+                                updateStmt.addBatch();
+
+                                if (++batchCount % batchSize == 0) {
+                                    updateStmt.executeBatch();
+                                    totalProcessed.addAndGet(batchCount);
+                                    batchCount = 0;
+                                    log.debug("Обработано {} записей", totalProcessed.get());
+                                }
+                            }
+
+                            if (batchCount > 0) {
+                                updateStmt.executeBatch();
+                                totalProcessed.addAndGet(batchCount);
+                            }
+                        }
+                    }
+                }
+                return null;
+            });
 
             long executionTime = System.currentTimeMillis() - startTime;
             log.info("Обновление цен завершено. Обработано {} записей за {} мс ({} записей/сек)",
-                    totalCount,
+                    totalProcessed.get(),
                     executionTime,
-                    calculateRecordsPerSecond(totalCount, executionTime));
+                    calculateRecordsPerSecond(totalProcessed.get(), executionTime));
+
         } catch (Exception e) {
             long executionTime = System.currentTimeMillis() - startTime;
             log.error("Ошибка при обновлении цен. Время выполнения: {} мс", executionTime, e);
             throw new RuntimeException("Ошибка при обновлении цен", e);
         }
-    }
-
-    private void batchUpdatePrices() {
-        int offset = 0;
-        int totalProcessed = 0;
-
-        while (true) {
-            long batchStart = System.currentTimeMillis();
-
-            List<ProductEntity> batch = productRepository.findProductsForUpdate(offset, batchSize);
-            if (batch.isEmpty()) {
-                break;
-            }
-
-            batch.forEach(product ->
-                    product.setPrice(calculateNewPrice(product.getPrice()))
-            );
-
-            productRepository.saveAll(batch);
-            entityManager.flush();
-            entityManager.clear();
-
-            totalProcessed += batch.size();
-            offset += batchSize;
-
-            log.debug("Обработан пакет {}-{} ({} записей) за {} мс",
-                    offset - batchSize,
-                    offset - 1,
-                    batch.size(),
-                    System.currentTimeMillis() - batchStart);
-        }
-    }
-
-    private void bulkUpdatePrices() {
-        long startTime = System.currentTimeMillis();
-
-        String updateQuery = "UPDATE products SET price = price * 1.05 WHERE price IS NOT NULL";
-
-        int updatedCount = jdbcTemplate.update(updateQuery);
-
-        log.info("Bulk-обновление завершено. Обновлено {} записей за {} мс",
-                updatedCount,
-                System.currentTimeMillis() - startTime);
-    }
-
-    private BigDecimal calculateNewPrice(BigDecimal currentPrice) {
-        return currentPrice.multiply(BigDecimal.valueOf(1.05));
     }
 
     private long calculateRecordsPerSecond(long totalCount, long executionTimeMs) {

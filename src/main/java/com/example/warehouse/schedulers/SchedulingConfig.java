@@ -25,13 +25,11 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableScheduling
 @ConditionalOnProperty(name = "app.scheduling.enabled", havingValue = "true")
-//@ConditionalOnProfile("!local")
 @RequiredArgsConstructor
 public class SchedulingConfig {
 
     private final ProductRepository productRepository;
     private final ProductServiceMapper productServiceMapper;
-    private final EntityManager entityManager; // Требуется только для оптимизированной версии
     private final JdbcTemplate jdbcTemplate;
 
     /**
@@ -55,7 +53,7 @@ public class SchedulingConfig {
      * <p>
      * Активируется когда:
      * - Включена оптимизация (app.scheduling.optimization=true)
-     * - Использует EntityManager для пакетной обработки
+     * - Использует чистый JDBC для максимальной производительности
      * </p>
      *
      * @return экземпляр OptimizedProductPriceScheduler
@@ -63,6 +61,6 @@ public class SchedulingConfig {
     @Bean
     @ConditionalOnProperty(name = "app.scheduling.optimization", havingValue = "true")
     public ProductPriceScheduler optimizedProductPriceScheduler() {
-        return new OptimizedProductPriceScheduler(productRepository, entityManager, jdbcTemplate);
+        return new OptimizedProductPriceScheduler(jdbcTemplate);
     }
 }
