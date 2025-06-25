@@ -27,32 +27,30 @@ import lombok.NoArgsConstructor;
  * </ul>
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Schema(description = "Данные для создания нового товара")
 public class ProductCreateRequest {
     @NotBlank
     @Schema(description = "Наименование товара", example = "Смартфон Samsung Galaxy S21", required = true)
-    private String name;
+    private final String name;
 
     @NotBlank
     @Schema(description = "Артикул товара (уникальный)", example = "SM-G991BZKDSEK", required = true)
-    private String article;
+    private final String article;
 
     @Schema(description = "Описание товара", example = "Флагманский смартфон с AMOLED-экраном 6.2\"")
-    private String description;
+    private final String description;
 
     @NotNull
     @Schema(description = "Категория товара", required = true)
-    private ProductCategoryEnum category;
+    private final ProductCategoryEnum category;
 
     @Schema(description = "Цена товара (должна быть больше 0)", example = "899.99", required = true)
     @PositiveOrZero
-    private BigDecimal price;
+    private final BigDecimal price;
 
     @NotNull
     @DecimalMin("0.00")
     @Schema(description = "Количество товара (не может быть отрицательным)", example = "10.00", required = true)
-    private BigDecimal quantity;
+    private final BigDecimal quantity;
 }

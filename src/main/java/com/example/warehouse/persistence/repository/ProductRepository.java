@@ -36,15 +36,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID>,
     boolean existsByArticle(String article);
 
     /**
-     * Находит товары с ценой выше указанной.
-     *
-     * @param minPrice минимальная цена для фильтрации товаров
-     * @return список товаров, цена которых превышает minPrice
-     */
-    @Query("SELECT p FROM ProductEntity p WHERE p.price > :minPrice")
-    List<ProductEntity> findExpensiveProducts(@Param("minPrice") BigDecimal minPrice);
-
-    /**
      * Находит товары для обновления с пессимистичной блокировкой.
      * <p>
      * Использует PESSIMISTIC_WRITE блокировку для безопасного обновления данных.

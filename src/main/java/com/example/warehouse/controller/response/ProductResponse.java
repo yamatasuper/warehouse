@@ -23,37 +23,35 @@ import lombok.NoArgsConstructor;
  * </p>
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Schema(description = "Полная информация о товаре")
 @NotNull
 public class ProductResponse {
     @Schema(description = "Уникальный идентификатор товара", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
-    private UUID id;
+    private final UUID id;
 
     @Schema(description = "Наименование товара", example = "Смартфон Samsung Galaxy S21")
-    private String name;
+    private final String name;
 
     @Schema(description = "Артикул товара (уникальный)", example = "SM-G991BZKDSEK")
-    private String article;
+    private final String article;
 
     @Schema(description = "Описание товара", example = "Флагманский смартфон с AMOLED-экраном 6.2\"")
-    private String description;
+    private final String description;
 
     @Schema(description = "Категория товара")
-    private ProductCategoryEnum category;
+    private final ProductCategoryEnum category;
 
     @Schema(description = "Цена товара", example = "899.99")
     @PositiveOrZero
-    private BigDecimal price;
+    private final BigDecimal price;
 
     @Schema(description = "Количество товара на складе", example = "15.00")
-    private BigDecimal quantity;
+    private final BigDecimal quantity;
 
     @Schema(description = "Дата и время последнего изменения количества", example = "2023-05-15T14:30:45+03:00")
-    private ZonedDateTime lastQuantityChange;
+    private final ZonedDateTime lastQuantityChange;
 
     @Schema(description = "Дата и время создания записи о товаре", example = "2023-05-10T09:15:22+03:00")
-    private LocalDate createdAt;
+    private final LocalDate createdAt;
 }

@@ -20,45 +20,43 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  */
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Schema(description = "Стандартизированный ответ об ошибке для REST API")
 public class ErrorResponse {
     /**
      * Временная метка возникновения ошибки в формате ISO-8601.
      */
     @Schema(description = "Временная метка возникновения ошибки", example = "2023-05-20T12:34:56.789Z")
-    private ZonedDateTime timestamp;
+    private final ZonedDateTime timestamp;
 
     /**
      * HTTP статус код ошибки.
      */
     @NotNull
     @Schema(description = "HTTP статус код", example = "404")
-    private int status;
+    private final int status;
 
     /**
      * Текстовое описание HTTP статуса.
      */
     @Schema(description = "Описание HTTP статуса", example = "Not Found")
-    private String error;
+    private final String error;
 
     /**
      * Основное сообщение об ошибке, предназначенное для пользователя.
      */
     @NotBlank
     @Schema(description = "Сообщение об ошибке", example = "Ресурс не найден")
-    private String message;
+    private final String message;
 
     /**
      * Тип исключения, которое вызвало ошибку.
      */
     @Schema(description = "Тип исключения", example = "ResourceNotFoundException")
-    private String exceptionType;
+    private final String exceptionType;
 
     /**
      * Дополнительные детали ошибки, такие как ошибки валидации или stack trace.
      */
     @Schema(description = "Детали ошибки (например, ошибки валидации)")
-    private List<String> details;
+    private final List<String> details;
 }

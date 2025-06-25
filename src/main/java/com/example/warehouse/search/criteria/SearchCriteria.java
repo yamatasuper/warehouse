@@ -20,7 +20,7 @@ public class SearchCriteria {
      */
     @NotBlank(message = "Поле 'field' не может быть пустым")
     @Schema(description = "Поле для фильтрации", example = "price")
-    private String field;
+    private final String field;
 
     /**
      * Значение для сравнения с указанным полем.
@@ -28,7 +28,7 @@ public class SearchCriteria {
      */
     @NotNull(message = "Поле 'value' не может быть null")
     @Schema(description = "Значение для сравнения", example = "100.0")
-    private Object value;
+    private final Object value;
 
     /**
      * Операция сравнения для фильтрации.
@@ -39,5 +39,5 @@ public class SearchCriteria {
     @ValidSearchOperation
     @Schema(description = "Операция сравнения (=, >=, <=, ~, EQUAL, GRATER_THAN_OR_EQ, LESS_THAN_OR_EQ, LIKE)",
             example = ">=")
-    private String operation;
+    private final String operation;
 }

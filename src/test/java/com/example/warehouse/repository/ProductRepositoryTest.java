@@ -46,28 +46,5 @@
 //    @SqlGroup({
 //            @Sql(scripts = "/scripts/insert-multiple-products-before.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
 //            @Sql(scripts = "/scripts/cleanup-products-after.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-//    })
-//    void whenFindExpensiveProducts_thenReturnCorrectProducts() {
-//        // when
-//        List<ProductEntity> expensiveProducts = productRepository.findExpensiveProducts(BigDecimal.valueOf(100));
-//
-//        // then
-//        assertThat(expensiveProducts).hasSize(2);
-//        assertThat(expensiveProducts)
-//                .extracting(ProductEntity::getArticle)
-//                .containsExactlyInAnyOrder("EXPENSIVE1", "EXPENSIVE2");
-//    }
-//
-//    @Test
-//    @SqlGroup({
-//            @Sql(scripts = "/scripts/insert-single-product-before.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
-//            @Sql(scripts = "/scripts/cleanup-products-after.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-//    })
-//    void whenFindExpensiveProductsWithHighThreshold_thenReturnEmptyList() {
-//        // when
-//        List<ProductEntity> expensiveProducts = productRepository.findExpensiveProducts(BigDecimal.valueOf(1000));
-//
-//        // then
-//        assertThat(expensiveProducts).isEmpty();
-//    }
+//    })Ï
 //}
