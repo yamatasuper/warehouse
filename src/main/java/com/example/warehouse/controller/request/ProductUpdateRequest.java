@@ -42,8 +42,6 @@ public class ProductUpdateRequest {
     @Schema(description = "Категория товара", required = true)
     private ProductCategoryEnum category;
 
-    @NotNull
-    @DecimalMin("0.01")
     @Schema(description = "Цена товара (должна быть больше 0)", example = "950.00", required = true)
     @PositiveOrZero
     private BigDecimal price;
