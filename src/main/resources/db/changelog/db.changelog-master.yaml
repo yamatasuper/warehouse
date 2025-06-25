@@ -1,5 +1,5 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/initial-schema.xml
+      file: db/changelog/initial-schema.sql
   - include:
-      file: db/changelog/test-data.xml
+      file: db/changelog/test-data.sql
