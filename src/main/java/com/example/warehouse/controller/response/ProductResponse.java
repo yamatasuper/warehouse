@@ -3,7 +3,8 @@ package com.example.warehouse.controller.response;
 import com.example.warehouse.enums.ProductCategoryEnum;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -54,5 +55,5 @@ public class ProductResponse {
     private ZonedDateTime lastQuantityChange;
 
     @Schema(description = "Дата и время создания записи о товаре", example = "2023-05-10T09:15:22+03:00")
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 }

@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -60,8 +60,8 @@ public class ProductSpecification implements Specification<ProductEntity> {
                 return handleStringPredicate(path, builder, value, operation);
             } else if (Number.class.isAssignableFrom(fieldType)) {
                 return handleNumericPredicate(path, builder, value, operation, fieldType);
-            } else if (LocalDateTime.class.equals(fieldType)) {
-                return handleLocalDateTimePredicate(path, builder, value, operation);
+            } else if (LocalDate.class.equals(fieldType)) {
+                return handleLocalDatePredicate(path, builder, value, operation);
             }
 
             // Обработка по умолчанию для Comparable типов
@@ -158,32 +158,32 @@ public class ProductSpecification implements Specification<ProductEntity> {
     }
 
     /**
-     * Обрабатывает предикаты для полей типа LocalDateTime.
+     * Обрабатывает предикаты для полей типа LocalDate.
      *
      * @param path путь к полю сущности
      * @param builder построитель критериев
      * @param value значение даты/времени
      * @param operation операция сравнения
-     * @return предикат для поля LocalDateTime
+     * @return предикат для поля LocalDate
      * @throws IllegalArgumentException если формат даты некорректен или операция не поддерживается
      */
-    private Predicate handleLocalDateTimePredicate(Path<?> path, CriteriaBuilder builder,
+    private Predicate handleLocalDatePredicate(Path<?> path, CriteriaBuilder builder,
                                                    Object value, SearchOperation operation) {
         try {
-            LocalDateTime dateValue;
-            if (value instanceof LocalDateTime) {
-                dateValue = (LocalDateTime) value;
+            LocalDate dateValue;
+            if (value instanceof LocalDate) {
+                dateValue = (LocalDate) value;
             } else {
-                dateValue = LocalDateTime.parse(value.toString(), DATE_FORMATTER);
+                dateValue = LocalDate.parse(value.toString(), DATE_FORMATTER);
             }
 
             switch (operation) {
                 case EQUAL:
                     return builder.equal(path, dateValue);
                 case GREATER_THAN_OR_EQUAL:
-                    return builder.greaterThanOrEqualTo((Expression<LocalDateTime>) path, dateValue);
+                    return builder.greaterThanOrEqualTo((Expression<LocalDate>) path, dateValue);
                 case LESS_THAN_OR_EQUAL:
-                    return builder.lessThanOrEqualTo((Expression<LocalDateTime>) path, dateValue);
+                    return builder.lessThanOrEqualTo((Expression<LocalDate>) path, dateValue);
                 default:
                     throw new IllegalArgumentException("Unsupported date operation: " + operation);
             }

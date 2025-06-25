@@ -14,7 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -70,7 +70,7 @@ public class OptimizedProductPriceScheduler implements ProductPriceScheduler {
 
         // Создаем файл лога с timestamp в имени
         String logFileName = String.format("price-update-%s.log",
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss")));
+                LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         File logFile = new File(logDir, logFileName);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
