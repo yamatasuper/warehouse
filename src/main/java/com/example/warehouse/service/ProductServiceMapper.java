@@ -1,6 +1,6 @@
 package com.example.warehouse.service;
 
-import com.example.warehouse.entity.ProductEntity;
+import com.example.warehouse.persistence.entity.ProductEntity;
 import com.example.warehouse.service.model.Product;
 import com.example.warehouse.service.request.CreateProductCommand;
 import com.example.warehouse.service.request.UpdateProductCommand;

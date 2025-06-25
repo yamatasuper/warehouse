@@ -1,18 +1,14 @@
 package com.example.warehouse.schedulers;
 
-import com.example.warehouse.repository.ProductRepository;
+import com.example.warehouse.persistence.repository.ProductRepository;
 import com.example.warehouse.service.ProductServiceMapper;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 /**

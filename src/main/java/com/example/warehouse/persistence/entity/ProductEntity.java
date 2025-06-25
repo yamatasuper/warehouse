@@ -1,4 +1,4 @@
-package com.example.warehouse.entity;
+package com.example.warehouse.persistence.entity;
 import com.example.warehouse.enums.ProductCategoryEnum;
 
 import org.hibernate.annotations.CreationTimestamp;

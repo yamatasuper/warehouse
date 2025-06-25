@@ -1,6 +1,6 @@
 app:
   scheduling:
-    enabled: false
+    enabled: true
     optimization: true  # Включаем оптимизированный режим
 
   scheduler:

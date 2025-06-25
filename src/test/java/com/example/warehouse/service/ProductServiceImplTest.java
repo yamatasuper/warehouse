@@ -8,8 +8,8 @@ import com.example.warehouse.controller.mapper.ProductDtoMapper;
 import com.example.warehouse.controller.request.ProductCreateRequest;
 import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
-import com.example.warehouse.entity.ProductEntity;
-import com.example.warehouse.repository.ProductRepository;
+import com.example.warehouse.persistence.entity.ProductEntity;
+import com.example.warehouse.persistence.repository.ProductRepository;
 import com.example.warehouse.service.impl.ProductServiceImpl;
 import com.example.warehouse.service.model.Product;
 import com.example.warehouse.service.request.CreateProductCommand;
@@ -50,21 +50,25 @@ class ProductServiceImplTest {
         UUID id = UUID.randomUUID();
         ProductUpdateRequest request = ProductUpdateRequest.builder()
                 .name("Updated Name")
+                .article("PROD-123")
                 .price(BigDecimal.valueOf(20.0))
                 .build();
 
         UpdateProductCommand command = UpdateProductCommand.builder()
                 .name("Updated Name")
+                .article("PROD-123")
                 .price(BigDecimal.valueOf(20.0))
                 .build();
 
         ProductEntity existingEntity = ProductEntity.builder()
                 .id(id)
+                .article("PROD-123")
                 .name("Original Name")
                 .build();
 
         ProductEntity expectedSavedEntity = ProductEntity.builder()
                 .id(id)
+                .article("PROD-123")
                 .name("Updated Name")
                 .build();
 
@@ -88,30 +92,36 @@ class ProductServiceImplTest {
         // Arrange
         ProductCreateRequest request = ProductCreateRequest.builder()
                 .name("New Product")
+                .article("PROD-123")
                 .price(BigDecimal.valueOf(15.99))
                 .build();
 
         CreateProductCommand command = CreateProductCommand.builder()
                 .name("New Product")
+                .article("PROD-123")
                 .price(BigDecimal.valueOf(15.99))
                 .build();
 
         ProductEntity newEntity = ProductEntity.builder()
                 .name("New Product")
+                .article("PROD-123")
                 .build();
 
         ProductEntity savedEntity = ProductEntity.builder()
                 .id(UUID.randomUUID())
+                .article("PROD-123")
                 .name("New Product")
                 .build();
 
         Product domainProduct = Product.builder()
                 .id(savedEntity.getId())
+                .article("PROD-123")
                 .name("New Product")
                 .build();
 
         ProductResponse expectedResponse = ProductResponse.builder()
                 .id(savedEntity.getId())
+                .article("PROD-123")
                 .name("New Product")
                 .build();
 

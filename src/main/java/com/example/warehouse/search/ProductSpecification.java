@@ -1,32 +1,47 @@
 package com.example.warehouse.search;
 
-import static org.hibernate.type.descriptor.java.JdbcDateJavaType.DATE_FORMAT;
-
-import com.example.warehouse.entity.ProductEntity;
+import com.example.warehouse.persistence.entity.ProductEntity;
+import com.example.warehouse.search.criteria.SearchCriteria;
+import com.example.warehouse.search.operation.SearchOperation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
 
 import jakarta.persistence.criteria.*;
 
+/**
+ * Реализация спецификации для фильтрации продуктов на основе критериев поиска.
+ * Поддерживает различные типы полей (строки, числа, даты) и операции сравнения.
+ */
 public class ProductSpecification implements Specification<ProductEntity> {
     private static final Logger logger = LoggerFactory.getLogger(ProductSpecification.class);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final SearchCriteria criteria;
 
+    /**
+     * Создает новую спецификацию продукта на основе критерия поиска.
+     *
+     * @param criteria критерий поиска, содержащий поле, значение и операцию сравнения
+     */
     public ProductSpecification(SearchCriteria criteria) {
         this.criteria = criteria;
     }
 
+    /**
+     * Преобразует критерий поиска в предикат для использования в запросах JPA.
+     *
+     * @param root корневой объект запроса
+     * @param query критерий запроса
+     * @param builder построитель критериев
+     * @return предикат, соответствующий критерию поиска
+     * @throws IllegalArgumentException если критерий некорректен или не может быть преобразован
+     */
     @Override
     @SuppressWarnings("unchecked")
     public Predicate toPredicate(Root<ProductEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
@@ -40,7 +55,7 @@ public class ProductSpecification implements Specification<ProductEntity> {
 
             logger.debug("Building predicate: {} {} {}", field, operation, value);
 
-            // Handle different field types
+            // Обработка разных типов полей
             if (String.class.equals(fieldType)) {
                 return handleStringPredicate(path, builder, value, operation);
             } else if (Number.class.isAssignableFrom(fieldType)) {
@@ -49,7 +64,7 @@ public class ProductSpecification implements Specification<ProductEntity> {
                 return handleLocalDateTimePredicate(path, builder, value, operation);
             }
 
-            // Default handling for Comparable types
+            // Обработка по умолчанию для Comparable типов
             return handleComparablePredicate(path, builder, value, operation);
         } catch (Exception e) {
             logger.error("Error building predicate for criteria: {}", criteria, e);
@@ -57,31 +72,16 @@ public class ProductSpecification implements Specification<ProductEntity> {
         }
     }
 
-    private Predicate handleLocalDateTimePredicate(Path<?> path, CriteriaBuilder builder,
-                                                   Object value, SearchOperation operation) {
-        try {
-            LocalDateTime dateValue;
-            if (value instanceof LocalDateTime) {
-                dateValue = (LocalDateTime) value;
-            } else {
-                dateValue = LocalDateTime.parse(value.toString(), DATE_FORMATTER);
-            }
-
-            switch (operation) {
-                case EQUAL:
-                    return builder.equal(path, dateValue);
-                case GREATER_THAN_OR_EQUAL:
-                    return builder.greaterThanOrEqualTo((Expression<LocalDateTime>) path, dateValue);
-                case LESS_THAN_OR_EQUAL:
-                    return builder.lessThanOrEqualTo((Expression<LocalDateTime>) path, dateValue);
-                default:
-                    throw new IllegalArgumentException("Unsupported date operation: " + operation);
-            }
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Invalid date format. Expected: yyyy-MM-dd HH:mm:ss", e);
-        }
-    }
-
+    /**
+     * Обрабатывает предикаты для строковых полей.
+     *
+     * @param path путь к полю сущности
+     * @param builder построитель критериев
+     * @param value значение для сравнения
+     * @param operation операция сравнения
+     * @return предикат для строкового поля
+     * @throws IllegalArgumentException если операция не поддерживается для строк
+     */
     private Predicate handleStringPredicate(Path<?> path, CriteriaBuilder builder,
                                             Object value, SearchOperation operation) {
         String strValue = value.toString();
@@ -97,10 +97,21 @@ public class ProductSpecification implements Specification<ProductEntity> {
         }
     }
 
+    /**
+     * Обрабатывает предикаты для числовых полей.
+     *
+     * @param path путь к полю сущности
+     * @param builder построитель критериев
+     * @param value значение для сравнения
+     * @param operation операция сравнения
+     * @param fieldType тип числового поля
+     * @return предикат для числового поля
+     * @throws IllegalArgumentException если значение не является числом или операция не поддерживается
+     */
     private Predicate handleNumericPredicate(Path<?> path, CriteriaBuilder builder,
                                              Object value, SearchOperation operation,
                                              Class<?> fieldType) {
-        // First try to use the value directly if it's already a Number
+        // Сначала пробуем использовать значение напрямую, если это Number
         if (value instanceof Number) {
             Number numberValue = (Number) value;
             switch (operation) {
@@ -115,7 +126,7 @@ public class ProductSpecification implements Specification<ProductEntity> {
             }
         }
 
-        // If not a Number, try to parse it
+        // Если не Number, пробуем распарсить
         try {
             String strValue = value.toString();
             if (Double.class.equals(fieldType) || double.class.equals(fieldType)) {
@@ -146,32 +157,51 @@ public class ProductSpecification implements Specification<ProductEntity> {
         throw new IllegalArgumentException("Unsupported numeric field type: " + fieldType);
     }
 
-    private Predicate handleDatePredicate(Path<?> path, CriteriaBuilder builder,
-                                          Object value, SearchOperation operation) {
+    /**
+     * Обрабатывает предикаты для полей типа LocalDateTime.
+     *
+     * @param path путь к полю сущности
+     * @param builder построитель критериев
+     * @param value значение даты/времени
+     * @param operation операция сравнения
+     * @return предикат для поля LocalDateTime
+     * @throws IllegalArgumentException если формат даты некорректен или операция не поддерживается
+     */
+    private Predicate handleLocalDateTimePredicate(Path<?> path, CriteriaBuilder builder,
+                                                   Object value, SearchOperation operation) {
         try {
-            Date dateValue;
-            if (value instanceof Date) {
-                dateValue = (Date) value;
+            LocalDateTime dateValue;
+            if (value instanceof LocalDateTime) {
+                dateValue = (LocalDateTime) value;
             } else {
-                SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-                dateValue = format.parse(value.toString());
+                dateValue = LocalDateTime.parse(value.toString(), DATE_FORMATTER);
             }
 
             switch (operation) {
                 case EQUAL:
                     return builder.equal(path, dateValue);
                 case GREATER_THAN_OR_EQUAL:
-                    return builder.greaterThanOrEqualTo((Expression<Date>) path, dateValue);
+                    return builder.greaterThanOrEqualTo((Expression<LocalDateTime>) path, dateValue);
                 case LESS_THAN_OR_EQUAL:
-                    return builder.lessThanOrEqualTo((Expression<Date>) path, dateValue);
+                    return builder.lessThanOrEqualTo((Expression<LocalDateTime>) path, dateValue);
                 default:
                     throw new IllegalArgumentException("Unsupported date operation: " + operation);
             }
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Invalid date format. Expected: " + DATE_FORMAT, e);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format. Expected: yyyy-MM-dd HH:mm:ss", e);
         }
     }
 
+    /**
+     * Обрабатывает предикаты для Comparable типов (общая реализация).
+     *
+     * @param path путь к полю сущности
+     * @param builder построитель критериев
+     * @param value значение для сравнения
+     * @param operation операция сравнения
+     * @return предикат для Comparable типа
+     * @throws IllegalArgumentException если значение не Comparable или операция не поддерживается
+     */
     @SuppressWarnings("unchecked")
     private Predicate handleComparablePredicate(Path<?> path, CriteriaBuilder builder,
                                                 Object value, SearchOperation operation) {
@@ -192,6 +222,13 @@ public class ProductSpecification implements Specification<ProductEntity> {
         }
     }
 
+    /**
+     * Получает путь к полю сущности, включая вложенные свойства.
+     *
+     * @param root корневой объект сущности
+     * @param field название поля (может содержать точки для вложенных свойств)
+     * @return путь к полю
+     */
     private Path<?> getPath(Root<ProductEntity> root, String field) {
         if (field.contains(".")) {
             String[] parts = field.split("\\.");

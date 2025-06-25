@@ -1,6 +1,6 @@
-package com.example.warehouse.repository;
+package com.example.warehouse.persistence.repository;
 
-import com.example.warehouse.entity.ProductEntity;
+import com.example.warehouse.persistence.entity.ProductEntity;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -57,6 +57,22 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID>,
     @Query("SELECT p FROM ProductEntity p ORDER BY p.id")
     List<ProductEntity> findProductsForUpdate(Pageable pageable);
 
+    /**
+     * Находит список продуктов для обновления с использованием пагинации.
+     *
+     * <p>Метод выполняет нативный SQL-запрос для выборки продуктов с заданным смещением (offset)
+     * и ограничением количества записей (limit). Записи сортируются по идентификатору (id)
+     * для обеспечения последовательной и предсказуемой выборки.</p>
+     *
+     * <p>Использование пагинации позволяет обрабатывать большие объемы данных порциями,
+     * что полезно для пакетной обработки или обработки в несколько потоков.</p>
+     *
+     * @param offset смещение (количество записей, которые нужно пропустить)
+     * @param limit максимальное количество возвращаемых записей
+     * @return список сущностей продуктов ({@link ProductEntity}), отсортированных по id
+     *
+     * @see ProductEntity
+     */
     @Query(value = "SELECT * FROM products ORDER BY id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<ProductEntity> findProductsForUpdate(@Param("offset") int offset, @Param("limit") int limit);
 }

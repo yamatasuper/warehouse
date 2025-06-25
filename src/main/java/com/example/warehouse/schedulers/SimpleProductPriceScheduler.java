@@ -1,13 +1,12 @@
 package com.example.warehouse.schedulers;
 
-import com.example.warehouse.entity.ProductEntity;
-import com.example.warehouse.repository.ProductRepository;
+import com.example.warehouse.persistence.entity.ProductEntity;
+import com.example.warehouse.persistence.repository.ProductRepository;
 import com.example.warehouse.service.ProductServiceMapper;
-import com.example.warehouse.time_metrics.Timed;
+import com.example.warehouse.metrics.Timed;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;

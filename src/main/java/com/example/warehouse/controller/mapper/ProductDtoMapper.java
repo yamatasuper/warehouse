@@ -3,7 +3,7 @@ package com.example.warehouse.controller.mapper;
 import com.example.warehouse.controller.request.ProductCreateRequest;
 import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
-import com.example.warehouse.entity.ProductEntity;
+import com.example.warehouse.persistence.entity.ProductEntity;
 import com.example.warehouse.service.model.Product;
 import com.example.warehouse.service.request.CreateProductCommand;
 import com.example.warehouse.service.request.UpdateProductCommand;

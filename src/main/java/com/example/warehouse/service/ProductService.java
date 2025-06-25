@@ -4,7 +4,7 @@ import com.example.warehouse.controller.request.ProductCreateRequest;
 import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
 import com.example.warehouse.exception.ResourceNotFoundException;
-import com.example.warehouse.search.SearchCriteria;
+import com.example.warehouse.search.criteria.SearchCriteria;
 import com.example.warehouse.service.impl.ProductServiceImpl;
 
 import java.util.List;

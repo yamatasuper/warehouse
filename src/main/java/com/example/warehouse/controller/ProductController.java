@@ -3,7 +3,7 @@ package com.example.warehouse.controller;
 import com.example.warehouse.controller.request.ProductCreateRequest;
 import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
-import com.example.warehouse.search.SearchCriteria;
+import com.example.warehouse.search.criteria.SearchCriteria;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -73,6 +73,7 @@ public interface ProductController {
             @ApiResponse(responseCode = "400", description = "Невалидные параметры запроса"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
+
     @PostMapping("/search")
     ResponseEntity<Page<ProductResponse>> searchProducts(
             @RequestBody @Valid List<SearchCriteria> criteria,

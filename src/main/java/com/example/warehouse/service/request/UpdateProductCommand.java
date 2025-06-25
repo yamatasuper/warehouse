@@ -29,6 +29,11 @@ public class UpdateProductCommand {
     private String name;
 
     /**
+     * Артикул
+     */
+    private String article;
+
+    /**
      * Новое описание товара
      */
     private String description;
