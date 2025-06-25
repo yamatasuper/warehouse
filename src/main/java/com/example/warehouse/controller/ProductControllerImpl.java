@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 /**
  * REST контроллер для управления товарами на складе.
@@ -35,13 +36,10 @@ import jakarta.validation.Valid;
  * @see ProductResponse
  */
 @RestController
+@RequiredArgsConstructor
 public class ProductControllerImpl implements ProductController {
 
     private final ProductService productService;
-
-    public ProductControllerImpl(ProductService productService) {
-        this.productService = productService;
-    }
 
     @Override
     public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductCreateRequest request) {
