@@ -1,5 +1,6 @@
 package com.example.warehouse.controller;
 
+import com.example.warehouse.controller.mapper.ProductDtoMapper;
 import com.example.warehouse.controller.request.ProductCreateRequest;
 import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
@@ -7,6 +8,7 @@ import com.example.warehouse.search.criteria.SearchCriteria;
 import com.example.warehouse.service.ProductService;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,22 +42,22 @@ import lombok.RequiredArgsConstructor;
 public class ProductControllerImpl implements ProductController {
 
     private final ProductService productService;
+    private final ProductDtoMapper dtoMapper;
 
     @Override
-    public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductCreateRequest request) {
-        return ResponseEntity.ok(productService.create(request));
+    public ResponseEntity<IdResponse> create(@Valid @RequestBody ProductCreateRequest request) {
+        UUID id = productService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new IdResponse(id));
     }
 
     @Override
-    public ResponseEntity<ProductResponse> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(productService.getById(id));
+    public ProductResponse getById(@PathVariable UUID id) {
+        return productService.getById(id);
     }
 
     @Override
-    public ResponseEntity<ProductResponse> update(
-            @PathVariable UUID id,
-            @Valid @RequestBody ProductUpdateRequest request) {
-        return ResponseEntity.ok(productService.update(id, request));
+    public ProductResponse update(@PathVariable UUID id, @Valid @RequestBody ProductUpdateRequest request) {
+        return productService.update(id, request);
     }
 
     @Override
@@ -65,15 +67,16 @@ public class ProductControllerImpl implements ProductController {
     }
 
     @Override
-    public ResponseEntity<List<ProductResponse>> getAll() {
-        return ResponseEntity.ok(productService.getAll());
+    public List<ProductResponse> getAll() {
+        return productService.getAll();
     }
 
     @Override
-    public ResponseEntity<Page<ProductResponse>> searchProducts(
+    public Page<ProductResponse> searchProducts(
             @RequestBody @Valid List<SearchCriteria> criteria,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(productService.searchProducts(criteria, page, size));
+        return productService.searchProducts(criteria, page, size);
     }
 }
+

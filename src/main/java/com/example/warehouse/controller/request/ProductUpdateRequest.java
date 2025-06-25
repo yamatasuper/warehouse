@@ -21,31 +21,11 @@ import lombok.NoArgsConstructor;
  * Все поля обязательны для заполнения (частичные обновления не поддерживаются).
  * </p>
  */
-@Data
-@Builder
-@Schema(description = "Данные для обновления информации о товаре")
-public class ProductUpdateRequest {
-    @NotBlank
-    @Schema(description = "Наименование товара", example = "Смартфон Samsung Galaxy S21 (обновленная версия)", required = true)
-    private final String name;
-
-    @NotBlank
-    @Schema(description = "Артикул товара", example = "SM-G991BZADSEK", required = true)
-    private final String article;
-
-    @Schema(description = "Описание товара", example = "Флагманский смартфон с AMOLED-экраном 6.2\" и улучшенной камерой")
-    private final String description;
-
-    @NotNull
-    @Schema(description = "Категория товара", required = true)
-    private final ProductCategoryEnum category;
-
-    @Schema(description = "Цена товара (должна быть больше 0)", example = "950.00", required = true)
-    @PositiveOrZero
-    private final BigDecimal price;
-
-    @NotNull
-    @DecimalMin("0.00")
-    @Schema(description = "Количество товара (не может быть отрицательным)", example = "15.00", required = true)
-    private final BigDecimal quantity;
-}
+public record ProductUpdateRequest(
+        @NotBlank String name,
+        @NotBlank String article,
+        String description,
+        @NotNull ProductCategoryEnum category,
+        @PositiveOrZero BigDecimal price,
+        @DecimalMin("0.00") BigDecimal quantity
+) {}

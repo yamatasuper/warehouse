@@ -26,11 +26,12 @@ public interface ProductController {
     @PostMapping
     @Operation(summary = "Создать товар", description = "Добавляет новый товар на склад")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Товар успешно создан"),
+            @ApiResponse(responseCode = "201", description = "Товар успешно создан"),
             @ApiResponse(responseCode = "400", description = "Невалидные данные товара"),
+            @ApiResponse(responseCode = "409", description = "Товар с таким артикулом уже существует"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
-    ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductCreateRequest request);
+    ResponseEntity<IdResponse> create(@Valid @RequestBody ProductCreateRequest request);
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить товар по ID", description = "Возвращает информацию о товаре по его идентификатору")
@@ -39,16 +40,17 @@ public interface ProductController {
             @ApiResponse(responseCode = "404", description = "Товар не найден"),
             @ApiResponse(responseCode = "400", description = "Невалидный идентификатор товара")
     })
-    ResponseEntity<ProductResponse> getById(@PathVariable UUID id);
+    ProductResponse getById(@PathVariable UUID id);
 
     @PutMapping("/{id}")
     @Operation(summary = "Обновить товар", description = "Обновляет информацию о существующем товаре")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Товар успешно обновлен"),
             @ApiResponse(responseCode = "404", description = "Товар не найден"),
-            @ApiResponse(responseCode = "400", description = "Невалидные данные товара")
+            @ApiResponse(responseCode = "400", description = "Невалидные данные товара"),
+            @ApiResponse(responseCode = "409", description = "Товар с таким артикулом уже существует")
     })
-    ResponseEntity<ProductResponse> update(
+    ProductResponse update(
             @PathVariable UUID id,
             @Valid @RequestBody ProductUpdateRequest request);
 
@@ -67,7 +69,7 @@ public interface ProductController {
             @ApiResponse(responseCode = "200", description = "Список товаров успешно получен"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
-    ResponseEntity<List<ProductResponse>> getAll();
+    List<ProductResponse> getAll();
 
     @PostMapping("/search")
     @Operation(summary = "Поиск товаров по критериям")
@@ -76,7 +78,7 @@ public interface ProductController {
             @ApiResponse(responseCode = "400", description = "Невалидные параметры запроса"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
-    ResponseEntity<Page<ProductResponse>> searchProducts(
+    Page<ProductResponse> searchProducts(
             @RequestBody @Valid List<SearchCriteria> criteria,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size);

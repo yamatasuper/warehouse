@@ -10,19 +10,19 @@ import com.example.warehouse.service.request.UpdateProductCommand;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface ProductDtoMapper {
-
-    // Преобразование DTO в команды сервиса
     @Mapping(target = "id", ignore = true)
-    CreateProductCommand toCommand(ProductCreateRequest request);
+    @Mapping(target = "lastQuantityChange", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    ProductEntity toEntity(ProductCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
-    UpdateProductCommand toCommand(ProductUpdateRequest request);
+    @Mapping(target = "lastQuantityChange", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    void updateEntity(@MappingTarget ProductEntity entity, ProductUpdateRequest request);
 
-    // Преобразование модели сервиса в DTO ответа
     ProductResponse toResponse(Product product);
-
-    ProductResponse toResponseEntity(ProductEntity entity);
 }

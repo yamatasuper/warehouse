@@ -1,5 +1,6 @@
 package com.example.warehouse.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,6 +11,7 @@ import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
 import com.example.warehouse.persistence.entity.ProductEntity;
 import com.example.warehouse.persistence.repository.ProductRepository;
+import com.example.warehouse.search.criteria.SearchCriteriaValidator;
 import com.example.warehouse.service.impl.ProductServiceImpl;
 import com.example.warehouse.service.model.Product;
 import com.example.warehouse.service.request.CreateProductCommand;
@@ -30,114 +32,49 @@ import org.slf4j.LoggerFactory;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceImplTest {
-    private static final Logger logger = LoggerFactory.getLogger(ProductServiceImplTest.class);
-
     @Mock
-    private ProductRepository productRepositoryMock;
-
+    private ProductRepository productRepository;
     @Mock
-    private ProductServiceMapper productServiceMapperMock;
-
+    private ProductServiceMapper serviceMapper;
     @Mock
-    private ProductDtoMapper productDtoMapperMock;
+    private ProductDtoMapper dtoMapper;
+    @Mock
+    private SearchCriteriaValidator searchCriteriaValidator;
 
     @InjectMocks
-    private ProductServiceImpl productServiceUnderTest;
+    private ProductServiceImpl productService;
 
     @Test
-    void whenUpdateProduct_thenSaveUpdatedEntity() {
-        // Arrange
-        UUID id = UUID.randomUUID();
-        ProductUpdateRequest request = ProductUpdateRequest.builder()
-                .name("Updated Name")
-                .article("PROD-123")
-                .price(BigDecimal.valueOf(20.0))
-                .build();
+    void whenCreateProduct_thenReturnId() {
+        ProductCreateRequest request = new ProductCreateRequest("Test", "TEST-123", null, null, null, null);
+        ProductEntity entity = new ProductEntity();
+        entity.setId(UUID.randomUUID());
 
-        UpdateProductCommand command = UpdateProductCommand.builder()
-                .name("Updated Name")
-                .article("PROD-123")
-                .price(BigDecimal.valueOf(20.0))
-                .build();
+        when(dtoMapper.toEntity(request)).thenReturn(entity);
+        when(productRepository.save(entity)).thenReturn(entity);
 
-        ProductEntity existingEntity = ProductEntity.builder()
-                .id(id)
-                .article("PROD-123")
-                .name("Original Name")
-                .build();
+        UUID result = productService.create(request);
 
-        ProductEntity expectedSavedEntity = ProductEntity.builder()
-                .id(id)
-                .article("PROD-123")
-                .name("Updated Name")
-                .build();
-
-        logger.info("Starting test: whenUpdateProduct_thenSaveUpdatedEntity with ID: {}", id);
-
-        when(productDtoMapperMock.toCommand(request)).thenReturn(command);
-        when(productRepositoryMock.findById(id)).thenReturn(Optional.of(existingEntity));
-        when(productRepositoryMock.save(existingEntity)).thenReturn(expectedSavedEntity);
-
-        // Act
-        productServiceUnderTest.update(id, request);
-
-        // Assert
-        verify(productServiceMapperMock).updateEntity(command, existingEntity);
-        verify(productRepositoryMock).save(existingEntity);
-        logger.info("Test completed successfully - product with ID {} was updated", id);
+        assertEquals(entity.getId(), result);
+        verify(productRepository).save(entity);
     }
 
     @Test
-    void whenCreateProduct_thenReturnSavedEntity() {
-        // Arrange
-        ProductCreateRequest request = ProductCreateRequest.builder()
-                .name("New Product")
-                .article("PROD-123")
-                .price(BigDecimal.valueOf(15.99))
-                .build();
+    void whenUpdateProduct_thenReturnUpdatedResponse() {
+        UUID id = UUID.randomUUID();
+        ProductUpdateRequest request = new ProductUpdateRequest("Updated", "UPD-123", null, null, null, null);
+        ProductEntity entity = new ProductEntity();
+        Product domain = new Product(id, "Updated", "UPD-123", null, null, null, null, null, null);
+        ProductResponse response = new ProductResponse(id, "Updated", "UPD-123", null, null, null, null, null, null);
 
-        CreateProductCommand command = CreateProductCommand.builder()
-                .name("New Product")
-                .article("PROD-123")
-                .price(BigDecimal.valueOf(15.99))
-                .build();
+        when(productRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(serviceMapper.toDomain(entity)).thenReturn(domain);
+        when(dtoMapper.toResponse(domain)).thenReturn(response);
 
-        ProductEntity newEntity = ProductEntity.builder()
-                .name("New Product")
-                .article("PROD-123")
-                .build();
+        ProductResponse result = productService.update(id, request);
 
-        ProductEntity savedEntity = ProductEntity.builder()
-                .id(UUID.randomUUID())
-                .article("PROD-123")
-                .name("New Product")
-                .build();
-
-        Product domainProduct = Product.builder()
-                .id(savedEntity.getId())
-                .article("PROD-123")
-                .name("New Product")
-                .build();
-
-        ProductResponse expectedResponse = ProductResponse.builder()
-                .id(savedEntity.getId())
-                .article("PROD-123")
-                .name("New Product")
-                .build();
-
-        logger.info("Starting test: whenCreateProduct_thenReturnSavedEntity");
-
-        when(productDtoMapperMock.toCommand(request)).thenReturn(command);
-        when(productServiceMapperMock.toEntity(command)).thenReturn(newEntity);
-        when(productRepositoryMock.save(newEntity)).thenReturn(savedEntity);
-        when(productServiceMapperMock.toDomain(savedEntity)).thenReturn(domainProduct);
-        when(productDtoMapperMock.toResponse(domainProduct)).thenReturn(expectedResponse);
-
-        // Act
-        ProductResponse actualResponse = productServiceUnderTest.create(request);
-
-        // Assert
-        assertSame(expectedResponse, actualResponse);
-        logger.info("Test completed successfully - new product created with response: {}", actualResponse);
+        assertEquals(response, result);
+        verify(dtoMapper).updateEntity(entity, request);
+        verify(productRepository).save(entity);
     }
 }
