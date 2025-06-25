@@ -35,7 +35,6 @@ import jakarta.validation.Valid;
  * @see ProductResponse
  */
 @RestController
-@RequestMapping("/api/products")
 public class ProductControllerImpl implements ProductController {
 
     private final ProductService productService;
@@ -72,7 +71,7 @@ public class ProductControllerImpl implements ProductController {
         return ResponseEntity.ok(productService.getAll());
     }
 
-    @PostMapping("/search")
+    @Override
     public ResponseEntity<Page<ProductResponse>> searchProducts(
             @RequestBody @Valid List<SearchCriteria> criteria,
             @RequestParam(defaultValue = "0") int page,

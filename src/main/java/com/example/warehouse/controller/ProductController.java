@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Управление товарами", description = "CRUD операции для работы с товарами на складе")
+@RestController
+@RequestMapping("/api/products")
 public interface ProductController {
 
     @PostMapping
@@ -67,14 +69,13 @@ public interface ProductController {
     })
     ResponseEntity<List<ProductResponse>> getAll();
 
+    @PostMapping("/search")
     @Operation(summary = "Поиск товаров по критериям")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Товары найдены"),
             @ApiResponse(responseCode = "400", description = "Невалидные параметры запроса"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
-
-    @PostMapping("/search")
     ResponseEntity<Page<ProductResponse>> searchProducts(
             @RequestBody @Valid List<SearchCriteria> criteria,
             @RequestParam(defaultValue = "0") int page,
