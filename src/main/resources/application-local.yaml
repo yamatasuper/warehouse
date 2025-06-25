@@ -11,6 +11,8 @@ app:
       mode: batch        # Режим работы (simple/batch/bulk)
 
 spring:
+  config:
+    import: optional:file:.env
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true

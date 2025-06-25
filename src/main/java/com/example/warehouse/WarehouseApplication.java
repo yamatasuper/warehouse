@@ -25,17 +25,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 @SpringBootApplication
 @EnableScheduling
 public class WarehouseApplication {
-
-	/**
-	 * Точка входа в приложение.
-	 *
-	 * @param args аргументы командной строки (могут содержать настройки Spring Boot)
-	 * @see <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config">Spring Boot Externalized Configuration</a>
-	 */
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.configure().load();
-		System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
-		System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
 		SpringApplication.run(WarehouseApplication.class, args);
 	}
 }
