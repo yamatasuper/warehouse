@@ -9,16 +9,11 @@ app:
       initial-delay-ms: 10000 # Задержка перед первым запуском
       batch-size: 20000     # Согласовано с optimization.batch-size
       mode: batch        # Режим работы (simple/batch/bulk)
-#      bulk-threshold: 500000 # Порог для автоматического переключения в bulk-режим
 
 spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
-    contexts: local # можно указывать разные контексты для разных профилей
-    default-schema: PUBLIC
-    parameters:
-      now: NOW() # параметр для текущего времени
   datasource:
     url: jdbc:h2:file:./movchandb
     username: ${DB_USERNAME}
