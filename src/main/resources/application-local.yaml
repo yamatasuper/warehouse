@@ -11,6 +11,10 @@ app:
       mode: batch        # Режим работы (simple/batch/bulk)
 
 spring:
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=100,expireAfterWrite=1m
   config:
     import: optional:file:.env
   liquibase:
@@ -58,3 +62,12 @@ logging:
   level:
     com.example.warehouse: DEBUG
     org.springframework.boot.actuate: INFO  # Логирование для Actuator
+
+currency:
+  service:
+    client: real # или "mock" для тестовой реализации
+
+currency-service:
+  host: http://localhost:8081
+  methods:
+    get-currency: /api/v1/currencies

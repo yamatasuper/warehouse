@@ -24,6 +24,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa") // JPA + Hibernate
 	implementation("org.springframework.boot:spring-boot-starter-validation") // Валидация (@Valid и другие аннотации)
 
+	implementation ("org.springframework.boot:spring-boot-starter-webflux")
+	implementation ("org.springframework.boot:spring-boot-starter-cache")
+	implementation("com.github.ben-manes.caffeine:caffeine")
+
 	// База данных
 	runtimeOnly("com.h2database:h2") // Драйвер PostgreSQL
 	runtimeOnly("org.postgresql:postgresql")

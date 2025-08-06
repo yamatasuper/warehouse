@@ -24,5 +24,6 @@ public interface ProductDtoMapper {
     @Mapping(target = "createdAt", ignore = true)
     void updateEntity(@MappingTarget ProductEntity entity, ProductUpdateRequest request);
 
+    @Mapping(target = "currency", ignore = true)
     ProductResponse toResponse(Product product);
 }

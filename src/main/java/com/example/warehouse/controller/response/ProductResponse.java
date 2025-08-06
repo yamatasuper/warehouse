@@ -54,4 +54,7 @@ public class ProductResponse {
 
     @Schema(description = "Дата и время создания записи о товаре", example = "2023-05-10T09:15:22+03:00")
     private final LocalDate createdAt;
+
+    @Schema(description = "Валюта цены товара", example = "RUB")
+    private final String currency;
 }
