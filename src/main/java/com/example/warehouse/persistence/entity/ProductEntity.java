@@ -15,6 +15,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -41,16 +42,12 @@ import lombok.Setter;
 @Builder
 public class ProductEntity {
     @Id
-    @GeneratedValue
-    @Column(columnDefinition = "UUID")
     private UUID id;
 
-    @NotBlank
     @Column(nullable = false)
     private String name;
 
-    @NotBlank
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String article;
 
     private String description;
@@ -59,19 +56,29 @@ public class ProductEntity {
     @Column(nullable = false)
     private ProductCategoryEnum category;
 
-    @Column(nullable = false, precision = 19, scale = 2)
-    @PositiveOrZero
+    @Column(nullable = false)
     private BigDecimal price;
 
-    @Column(nullable = false, precision = 19, scale = 2)
-    @DecimalMin("0.00")
+    @Column(nullable = false)
     private BigDecimal quantity;
 
-    @CreationTimestamp
-    @Column(nullable = false)
+    @Column(name = "is_available", nullable = false)
+    private Boolean isAvailable;
+
+    @Column(name = "last_quantity_change")
     private ZonedDateTime lastQuantityChange;
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDate createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (isAvailable == null) {
+            isAvailable = true;
+        }
+        if (createdAt == null) {
+            createdAt = LocalDate.now();
+        }
+        lastQuantityChange = ZonedDateTime.now();
+    }
 }

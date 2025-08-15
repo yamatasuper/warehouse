@@ -3,3 +3,9 @@ databaseChangeLog:
       file: db/changelog/task1/initial-schema.sql
   - include:
       file: db/changelog/task1/test-data.sql
+  - include:
+      file: db/changelog/task4/create_customers_table.sql
+  - include:
+      file: db/changelog/task4/create_orders_table.sql
+  - include:
+      file: db/changelog/task4/rename_product_table_and_add_is_available.sql

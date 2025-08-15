@@ -1,0 +1,17 @@
+CREATE TABLE orders (
+    id UUID PRIMARY KEY,
+    customer_id BIGINT NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    delivery_address VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE order_items (
+    id UUID PRIMARY KEY,
+    order_id UUID NOT NULL REFERENCES orders(id),
+    product_id UUID NOT NULL REFERENCES products(id),
+    quantity DECIMAL NOT NULL,
+    price DECIMAL NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
