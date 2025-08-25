@@ -10,6 +10,30 @@ app:
       batch-size: 20000     # Согласовано с optimization.batch-size
       mode: batch        # Режим работы (simple/batch/bulk)
 
+  # НАСТРОЙКИ ИНТЕГРАЦИЙ ДЛЯ ЗАДАНИЯ 5
+  integration:
+    timeout:
+      connection: 4000    # 4 секунды на подключение
+      read: 4000          # 4 секунды на чтение
+      total: 5000         # 5 секунд общий таймаут
+
+    services:
+      account:
+        url: http://localhost:8081/api/accounts  # URL для заглушки
+        enabled: false      # false - использовать заглушку, true - реальный сервис
+        mock-delay-ms: 3000 # Задержка для заглушки (3 секунды)
+
+      crm:
+        url: http://localhost:8082/api/customers/inn
+        enabled: false
+        mock-delay-ms: 3000
+
+  # НАСТРОЙКИ ДЛЯ ОПТИМИЗАЦИИ ЗАПРОСОВ
+  optimization:
+    batch-size: 1000      # Размер батча для пакетных операций
+    fetch-size: 500       # Размер выборки для JDBC
+    max-pool-size: 10     # Максимальный размер пула потоков
+
 spring:
   cache:
     type: caffeine
@@ -24,6 +48,11 @@ spring:
     url: jdbc:h2:file:./movchandb
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
   h2:
     console:
       enabled: true
@@ -35,6 +64,27 @@ spring:
       hibernate:
         jdbc:
           batch_size: 1000 # Оптимизация для пакетных операций
+          fetch_size: 500  # Размер выборки
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+    open-in-view: false # Важно для производительности!
+
+  # НАСТРОЙКИ ASYNC И ТАЙМАУТОВ
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 10
+        queue-capacity: 100
+        keep-alive: 60s
+      thread-name-prefix: async-
+
+  web:
+    client:
+      timeout:
+        connect: 4000
+        read: 4000
 
 # Добавленные настройки для Actuator и метрик
 management:
@@ -58,10 +108,13 @@ management:
       percentiles-histogram:
         http.server.requests: true  # Гистограммы для HTTP-запросов
 
+# НАСТРОЙКИ ЛОГИРОВАНИЯ ДЛЯ ИНТЕГРАЦИЙ
 logging:
   level:
     com.example.warehouse: DEBUG
     org.springframework.boot.actuate: INFO  # Логирование для Actuator
+    org.springframework.web.client: DEBUG   # Логирование REST-запросов
+    com.example.warehouse.integration: TRACE # Детальные логи интеграций
 
 currency:
   service:
@@ -71,3 +124,7 @@ currency-service:
   host: http://localhost:8081
   methods:
     get-currency: /api/v1/currencies
+
+# НАСТРОЙКИ ДЛЯ ТЕСТИРОВАНИЯ И РАЗРАБОТКИ
+debug: false
+trace: false

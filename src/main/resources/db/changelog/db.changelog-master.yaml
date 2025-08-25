@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/task4/create_orders_table.sql
   - include:
       file: db/changelog/task4/rename_product_table_and_add_is_available.sql
+  - include:
+      file: db/changelog/task5/insert_test_customers.sql
