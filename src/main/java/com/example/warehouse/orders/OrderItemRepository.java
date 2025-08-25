@@ -2,6 +2,7 @@ package com.example.warehouse.orders;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,4 +15,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItemEntity, UUID
             "FROM OrderItemEntity oi JOIN ProductEntity p ON oi.productId = p.id " +
             "WHERE oi.orderId = :orderId")
     List<OrderItemProjection> findByOrderIdWithProduct(UUID orderId);
+
+    @Query("SELECT oi FROM OrderItemEntity oi WHERE oi.orderId IN :orderIds")
+    List<OrderItemEntity> findByOrderIds(@Param("orderIds") List<UUID> orderIds);
 }
