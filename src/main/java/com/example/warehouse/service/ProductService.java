@@ -4,6 +4,7 @@ import com.example.warehouse.controller.request.ProductCreateRequest;
 import com.example.warehouse.controller.request.ProductUpdateRequest;
 import com.example.warehouse.controller.response.ProductResponse;
 import com.example.warehouse.exception.ResourceNotFoundException;
+import com.example.warehouse.persistence.entity.ProductEntity;
 import com.example.warehouse.search.criteria.SearchCriteria;
 import com.example.warehouse.service.impl.ProductServiceImpl;
 
@@ -33,4 +34,5 @@ public interface ProductService {
     void delete(UUID id);
     List<ProductResponse> getAll();
     Page<ProductResponse> searchProducts(List<SearchCriteria> criteria, int page, int size);
+    List<ProductEntity> getAllEntities();
 }

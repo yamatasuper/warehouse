@@ -31,3 +31,11 @@ currency-service:
 currency:
   service:
     client: real
+
+aws:
+  s3:
+    endpoint: http://192.168.0.21:9000
+    region: us-east-1 # MinIO обычно использует этот регион по умолчанию
+    access-key: minioadmin  # ← стандартный логин
+    secret-key: minioadmin  # ← стандартный пароль
+    bucket-name: product-images

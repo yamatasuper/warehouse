@@ -16,6 +16,9 @@ java {
 
 repositories {
 	mavenCentral()
+	flatDir {
+		dirs("libs")
+	}
 }
 
 dependencies {
@@ -56,6 +59,8 @@ dependencies {
 	testImplementation("org.assertj:assertj-core") // Fluent assertions for tests
 	testImplementation("org.hamcrest:hamcrest-library") // Hamcrest matchers
 
+	implementation("org.springframework:spring-test")
+
 	// For JSON testing in MockMvc
 	testImplementation("org.springframework:spring-test")
 	testImplementation("com.jayway.jsonpath:json-path")
@@ -79,12 +84,25 @@ dependencies {
 	implementation("io.github.cdimascio:dotenv-java:3.0.0")
 
 	// Kafka
-	implementation("org.springframework.kafka:spring-kafka:3.1.0")
+	implementation("org.springframework.kafka:spring-kafka")
 	implementation("org.apache.kafka:kafka-clients:3.5.1")
 
 	// JSON serialization
 	implementation("com.fasterxml.jackson.core:jackson-databind")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+
+	implementation("org.springframework.boot:spring-boot-autoconfigure")
+	implementation("software.amazon.awssdk:s3:2.20.0")
+	implementation("software.amazon.awssdk:aws-core:2.20.0")
+
+	// Spring Boot Test Starter (includes autoconfigure for testing)
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
+
+	implementation("com.example:exception-handler-starter:1.0.0")
+
+	// Для работы с Multipart файлами
+	implementation("commons-io:commons-io:2.11.0")
 }
 
 tasks.withType<Test> {

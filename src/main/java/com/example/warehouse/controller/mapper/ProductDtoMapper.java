@@ -17,11 +17,13 @@ public interface ProductDtoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "lastQuantityChange", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "isAvailable", ignore = true)
     ProductEntity toEntity(ProductCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "lastQuantityChange", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "isAvailable", ignore = true)
     void updateEntity(@MappingTarget ProductEntity entity, ProductUpdateRequest request);
 
     @Mapping(target = "currency", ignore = true)

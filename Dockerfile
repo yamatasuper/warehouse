@@ -1,6 +1,7 @@
 FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 COPY . .
+COPY libs/ /app/libs/
 RUN ./gradlew bootJar -x test --no-daemon
 
 FROM eclipse-temurin:17-jdk-alpine

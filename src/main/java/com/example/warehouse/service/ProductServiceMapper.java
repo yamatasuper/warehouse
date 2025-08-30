@@ -40,6 +40,7 @@ public interface ProductServiceMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "lastQuantityChange", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "isAvailable", ignore = true)
     ProductEntity toEntity(CreateProductCommand command);
 
     /**
@@ -55,6 +56,7 @@ public interface ProductServiceMapper {
     @Mapping(target = "article", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "isAvailable", ignore = true)
     @Mapping(target = "lastQuantityChange", expression = "java(ZonedDateTime.now())")
     void updateEntity(UpdateProductCommand command, @MappingTarget ProductEntity entity);
 
@@ -72,6 +74,7 @@ public interface ProductServiceMapper {
     @Mapping(target = "article", ignore = true)
     @Mapping(target = "lastQuantityChange", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "isAvailable", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdate(UpdateProductCommand command, @MappingTarget ProductEntity entity);
 

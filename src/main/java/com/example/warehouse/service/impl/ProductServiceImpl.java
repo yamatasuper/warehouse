@@ -118,6 +118,12 @@ public class ProductServiceImpl implements ProductService {
                 .map(this::convertToResponseWithCurrency);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductEntity> getAllEntities() {
+        return productRepository.findAll();
+    }
+
     private Specification<ProductEntity> createSpecification(SearchCriteria criteria) {
         return new ProductSpecification(criteria);
     }
