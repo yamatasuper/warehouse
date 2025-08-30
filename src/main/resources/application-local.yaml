@@ -121,7 +121,7 @@ currency:
     client: real # или "mock" для тестовой реализации
 
 currency-service:
-  host: http://localhost:8081
+  host: http://localhost:8090
   methods:
     get-currency: /api/v1/currencies
 

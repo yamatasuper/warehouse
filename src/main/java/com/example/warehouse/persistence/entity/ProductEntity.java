@@ -69,7 +69,7 @@ public class ProductEntity {
     private ZonedDateTime lastQuantityChange;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDate createdAt;
+    private ZonedDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
@@ -77,8 +77,10 @@ public class ProductEntity {
             isAvailable = true;
         }
         if (createdAt == null) {
-            createdAt = LocalDate.now();
+            createdAt = ZonedDateTime.now();
         }
-        lastQuantityChange = ZonedDateTime.now();
+        if (lastQuantityChange == null) {
+            lastQuantityChange = ZonedDateTime.now();
+        }
     }
 }

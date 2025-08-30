@@ -85,6 +85,7 @@ tasks.withType<Test> {
 
 tasks.bootJar {
 	archiveFileName.set("warehouse-app.jar")
+	mainClass.set("com.example.warehouse.WarehouseApplication")
 }
 
 // Для Spring Boot приложения через bootRun

@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/warehouse
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+
+  # Отключаем H2 console в production
+  h2:
+    console:
+      enabled: false
+
+# Обновляем URL для интеграций
+app:
+  integration:
+    services:
+      account:
+        url: http://currencies-service:8081/api/accounts
+      crm:
+        url: http://currencies-service:8081/api/customers/inn
+
+currency-service:
+  host: http://currencies-service:8090
+  methods:
+    get-currency: /api/rates
+
+currency:
+  service:
+    client: real
