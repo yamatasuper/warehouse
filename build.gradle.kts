@@ -77,6 +77,14 @@ dependencies {
 
 	// Загрузка переменных из .env
 	implementation("io.github.cdimascio:dotenv-java:3.0.0")
+
+	// Kafka
+	implementation("org.springframework.kafka:spring-kafka:3.1.0")
+	implementation("org.apache.kafka:kafka-clients:3.5.1")
+
+	// JSON serialization
+	implementation("com.fasterxml.jackson.core:jackson-databind")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 }
 
 tasks.withType<Test> {
