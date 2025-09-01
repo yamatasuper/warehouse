@@ -1,5 +1,8 @@
 package com.example.warehouse.orders;
 
+import com.example.warehouse.camunda.OrderOrchestrationService;
+import com.example.warehouse.camunda.dto.OrderConfirmRequest;
+import com.example.warehouse.camunda.dto.OrderConfirmationResponse;
 import com.example.warehouse.controller.IdResponse;
 
 import org.springframework.http.HttpStatus;
@@ -24,6 +27,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
+    private final OrderOrchestrationService orchestrationService;
+
+    @PostMapping("/{orderId}/confirm")
+    public ResponseEntity<OrderConfirmationResponse> confirmOrder(
+            @RequestHeader("X-Customer-Id") Long customerId,
+            @PathVariable UUID orderId,
+            @Valid @RequestBody OrderConfirmRequest request) {
+
+        UUID businessKey = orchestrationService.startOrderConfirmationProcess(
+                orderId, request
+        );
+
+        return ResponseEntity.ok(new OrderConfirmationResponse(
+                orderId,
+                businessKey,
+                OrderStatus.PROCESSING
+        ));
+    }
 
     @PostMapping
     public ResponseEntity<IdResponse> createOrder(
@@ -46,14 +67,6 @@ public class OrderController {
             @PathVariable UUID orderId) {
         orderService.cancelOrder(orderId, customerId);
         return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/{orderId}/confirm")
-    public ResponseEntity<Void> confirmOrder(
-            @RequestHeader("X-Customer-Id") Long customerId,
-            @PathVariable UUID orderId) {
-        // TODO: реализовать логику подтверждения заказа
-        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{orderId}/status")

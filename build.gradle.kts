@@ -103,6 +103,14 @@ dependencies {
 
 	// Для работы с Multipart файлами
 	implementation("commons-io:commons-io:2.11.0")
+
+	// Camunda BPM (для ProcessEngine, RuntimeService, TaskService)
+	implementation("org.camunda.bpm:camunda-engine-spring:7.20.0")
+	implementation("org.camunda.bpm:camunda-engine:7.20.0")
+
+// Zeebe (для работы с Camunda Cloud/Zeebe)
+	implementation("io.camunda:spring-zeebe-starter:8.5.0")
+	implementation("io.camunda:zeebe-client-java:8.5.0")
 }
 
 tasks.withType<Test> {

@@ -1,19 +1,45 @@
+version: '3.8'
+
 services:
   main-app:
     build:
       context: /home/deck/git/warehouse
     ports:
-      - "8080:8080"
+      - "8082:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/warehouse
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_PROFILES_ACTIVE=docker,kafka
+    volumes:
+      - /home/deck/git/warehouse/config/application-docker.yml:/app/config/application.yml
     depends_on:
       db:
         condition: service_healthy
       currencies-service:
         condition: service_started
+      kafka:
+        condition: service_started
+    networks:
+      - app-network
+
+  zeebe:
+    image: camunda/zeebe:8.5.0
+    ports:
+      - "26500:26500"
+      - "9600:9600"
+    environment:
+      - ZEEBE_BROKER_CLUSTER_NODEID=0
+      - ZEEBE_BROKER_CLUSTER_CLUSTERSIZE=1
+      - ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT=1
+      - ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR=1
+      - ZEEBE_BROKER_CLUSTER_RAFT_REQUESTTIMEOUT=10s
+      - ZEEBE_BROKER_NETWORK_HOST=0.0.0.0
+      - ZEEBE_BROKER_NETWORK_ADVERTISEDHOST=zeebe
+      - ZEEBE_BROKER_GATEWAY_NETWORK_HOST=0.0.0.0
+      - ZEEBE_BROKER_GATEWAY_NETWORK_ADVERTISEDHOST=zeebe
+    depends_on:
+      - db
     networks:
       - app-network
 
@@ -30,15 +56,16 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: warehouse
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_MULTIPLE_DATABASES: warehouse,camunda
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -69,6 +96,11 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server kafka:9092 --list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
 

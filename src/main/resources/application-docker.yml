@@ -1,20 +1,49 @@
 spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: order-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    properties:
+      spring.json.trusted.packages: "*"
+
   datasource:
     url: jdbc:postgresql://db:5432/warehouse
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update  # Измените с validate на update для разработки
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
 
   # Отключаем H2 console в production
   h2:
     console:
       enabled: false
 
-# Обновляем URL для интеграций
+  # LIQUIBASE
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
+# Конфигурация интеграций
 app:
   integration:
     services:
@@ -35,7 +64,66 @@ currency:
 aws:
   s3:
     endpoint: http://192.168.0.21:9000
-    region: us-east-1 # MinIO обычно использует этот регион по умолчанию
-    access-key: minioadmin  # ← стандартный логин
-    secret-key: minioadmin  # ← стандартный пароль
+    region: us-east-1
+    access-key: minioadmin
+    secret-key: minioadmin
     bucket-name: product-images
+
+# Конфигурация Camunda
+camunda:
+  bpm:
+    database:
+      type: postgres
+      schema-update: true
+    history-level: full
+    job-execution:
+      enabled: true
+    admin-user:
+      id: demo
+      password: demo
+
+  # Отдельный datasource для Camunda
+  datasource:
+    url: jdbc:postgresql://db:5432/camunda
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  app:
+    kafka:
+      topics:
+        test-topic: test_topic
+        order-events: order_events
+
+# Конфигурация Zeebe
+zeebe:
+  client:
+    broker:
+      gateway-address: zeebe:26500
+    security:
+      plaintext: true
+    worker:
+      maxJobsActive: 32
+      threads: 2
+      timeout: 1000
+
+# Логирование
+logging:
+  level:
+    root: INFO
+    com.example.warehouse: DEBUG
+    org.camunda: INFO
+    org.springframework.kafka: INFO
+    org.apache.kafka: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Настройки безопасности
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
