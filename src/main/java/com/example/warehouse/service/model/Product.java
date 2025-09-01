@@ -4,6 +4,8 @@ import com.example.warehouse.enums.ProductCategoryEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -24,6 +26,6 @@ public record Product(
         ProductCategoryEnum category,
         BigDecimal price,
         BigDecimal quantity,
-        ZonedDateTime lastQuantityChange,
-        LocalDate createdAt
+        OffsetDateTime lastQuantityChange,
+        LocalDateTime createdAt
 ) {}

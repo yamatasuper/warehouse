@@ -5,6 +5,8 @@ import com.example.warehouse.enums.ProductCategoryEnum;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -50,10 +52,10 @@ public class ProductResponse {
     private final BigDecimal quantity;
 
     @Schema(description = "Дата и время последнего изменения количества", example = "2023-05-15T14:30:45+03:00")
-    private final ZonedDateTime lastQuantityChange;
+    private final OffsetDateTime lastQuantityChange;
 
     @Schema(description = "Дата и время создания записи о товаре", example = "2023-05-10T09:15:22+03:00")
-    private final LocalDate createdAt;
+    private final LocalDateTime createdAt;
 
     @Schema(description = "Валюта цены товара", example = "RUB")
     private final String currency;

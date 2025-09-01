@@ -57,7 +57,7 @@ public interface ProductServiceMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "isAvailable", ignore = true)
-    @Mapping(target = "lastQuantityChange", expression = "java(ZonedDateTime.now())")
+    @Mapping(target = "lastQuantityChange", ignore = true)
     void updateEntity(UpdateProductCommand command, @MappingTarget ProductEntity entity);
 
     /**

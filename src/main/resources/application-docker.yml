@@ -27,7 +27,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update  # Измените с validate на update для разработки
+      ddl-auto: validate  # Измените с validate на update для разработки
     properties:
       hibernate:
         format_sql: true
@@ -110,11 +110,10 @@ zeebe:
 # Логирование
 logging:
   level:
-    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.orm.jpa: DEBUG
+    org.hibernate: DEBUG
     com.example.warehouse: DEBUG
-    org.camunda: INFO
-    org.springframework.kafka: INFO
-    org.apache.kafka: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 

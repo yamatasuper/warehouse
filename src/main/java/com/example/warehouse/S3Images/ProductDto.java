@@ -6,6 +6,7 @@ import com.example.warehouse.service.model.Product;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -23,8 +24,8 @@ public class ProductDto {
   private ProductCategoryEnum category; // Изменен тип на enum
   private BigDecimal price;
   private BigDecimal quantity; // Изменен тип на BigDecimal
-  private ZonedDateTime lastQuantityChange; // Добавлено новое поле
-  private ZonedDateTime createdAt; // Изменен тип на LocalDate
+  private OffsetDateTime lastQuantityChange; // Добавлено новое поле
+  private LocalDateTime createdAt; // Изменен тип на LocalDate
   private List<String> imageUrls;
   private Boolean isAvailable;
 

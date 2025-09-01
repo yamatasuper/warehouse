@@ -13,7 +13,7 @@ DELETE FROM products;
 INSERT INTO products (id, name, article, description, category, price, quantity, last_quantity_change, created_at) VALUES
 ('0a0b2227-fbc8-46d5-a0b0-c7e0cf75f994', 'Laptop', 'ART001', 'High-performance laptop', 'ELECTRONICS', 999.99, 10.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('1b2c3338-abcd-57e6-b1c1-d8e1de86f005', 'Smartphone', 'ART002', 'Latest smartphone model', 'ELECTRONICS', 699.99, 25.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('2c3d4449-cdef-68f7-c2d2-e9f2ef97a116', 'Headphones', 'ART003', 'Wireless noise-cancelling', 'AUDIO', 199.99, 50.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('2c3d4449-cdef-68f7-c2d2-e9f2ef97a116', 'Headphones', 'ART003', 'Wireless noise-cancelling', 'ELECTRONICS', 199.99, 50.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- 2. Orders
 INSERT INTO orders (id, customer_id, status, delivery_address, created_at, updated_at) VALUES

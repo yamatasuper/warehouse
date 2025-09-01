@@ -5,6 +5,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -63,24 +65,25 @@ public class ProductEntity {
     private BigDecimal quantity;
 
     @Column(name = "is_available", nullable = false)
-    private Boolean isAvailable;
+    @Builder.Default
+    private Boolean isAvailable = true;
 
-    @Column(name = "last_quantity_change")
-    private ZonedDateTime lastQuantityChange;
+    @Column(name = "last_quantity_change", nullable = false)
+    private OffsetDateTime lastQuantityChange; // Исправлено на OffsetDateTime
 
-    @Column(name = "created_at", updatable = false)
-    private ZonedDateTime createdAt;
+    @Column(name = "created_at", updatable = false, nullable = false)
+    private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
-        if (isAvailable == null) {
-            isAvailable = true;
-        }
         if (createdAt == null) {
-            createdAt = ZonedDateTime.now();
+            createdAt = LocalDateTime.now();
         }
         if (lastQuantityChange == null) {
-            lastQuantityChange = ZonedDateTime.now();
+            lastQuantityChange = OffsetDateTime.now(); // Исправлено
+        }
+        if (isAvailable == null) {
+            isAvailable = true;
         }
     }
 }
