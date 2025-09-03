@@ -1,0 +1,417 @@
+2025-09-03 14:23:53.578550+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "DATABASECHANGELOGLOCK" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM PUBLIC.DATABASECHANGELOGLOCK [42104-232]
+2025-09-03 14:23:53.685122+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Функция "GEN_RANDOM_UUID" не найдена
+Function "GEN_RANDOM_UUID" not found; SQL statement:
+INSERT INTO products (id, name, article, description, category, price, quantity, last_quantity_change, created_at)
+SELECT
+    gen_random_uuid(),
+    CASE
+        WHEN x % 10 = 0 THEN 'Смартфон Samsung Galaxy S' || (23 + (x % 5))
+        WHEN x % 10 = 1 THEN 'Ноутбук Apple MacBook Pro ' || (13 + (x % 4)) || '"'
+        WHEN x % 10 = 2 THEN 'Кофеварка DeLonghi Magnifica ' || CHR(65 + (x % 5))
+        WHEN x % 10 = 3 THEN 'Телевизор LG OLED ' || (55 + (x % 6)) || 'C2'
+        WHEN x % 10 = 4 THEN 'Наушники Sony WH-1000XM' || (4 + (x % 3))
+        WHEN x % 10 = 5 THEN 'Планшет iPad Pro ' || (11 + (x % 2)) || '"'
+        WHEN x % 10 = 6 THEN 'Фитнес-браслет Xiaomi Mi Band ' || (6 + (x % 3))
+        WHEN x % 10 = 7 THEN 'Микроволновка Panasonic NN-GD' || (37 + (x % 5)) || 'S'
+        WHEN x % 10 = 8 THEN 'Робот-пылесос iRobot Roomba ' || (800 + (x % 100))
+        ELSE 'Умная колонка Яндекс Станция ' || (1 + (x % 3))
+    END,
+    CASE
+        WHEN x % 10 = 0 THEN 'SM-S' || (911 + x) || 'BZKDSEK'
+        WHEN x % 10 = 1 THEN 'MK' || (183 + x) || 'LL/A'
+        WHEN x % 10 = 2 THEN 'ECAM' || (22 + (x % 10)) || '.' || (110 + x) || '.B'
+        ELSE 'ART-' || x || '-' || SUBSTRING(CAST(RANDOM()*1000000 AS VARCHAR), 1, 6)
+    END,
+    CASE
+        WHEN x % 10 = 0 THEN 'Флагманский смартфон с динамическим AMOLED 2X экраном ' || (6.1 + (x % 10)/10) || '"'
+        WHEN x % 10 = 1 THEN 'Профессиональный ноутбук с процессором M' || (2 + (x % 3)) || ' Pro'
+        WHEN x % 10 = 2 THEN 'Автоматическая кофеварка с капучинатором, модель ' || (2020 + (x % 5))
+        ELSE 'Высококачественный продукт с уникальными характеристиками, версия ' || x
+    END,
+    CASE x % 7
+        WHEN 0 THEN 'ELECTRONICS'
+        WHEN 1 THEN 'CLOTHING'
+        WHEN 2 THEN 'FOOD'
+        WHEN 3 THEN 'FURNITURE'
+        WHEN 4 THEN 'FURNITURE'
+        WHEN 5 THEN 'FURNITURE'
+        ELSE 'OTHER'
+    END,
+    (100 + (x % 1000) * 5 + (x % 100)),
+    (1 + (x % 100)),
+    CURRENT_TIMESTAMP - (x % 30 || ' days')::INTERVAL,
+    CURRENT_TIMESTAMP - (x % 365 || ' days')::INTERVAL
+FROM generate_series(1, 1000) AS x; [90022-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.command.Parser.readFunction(Parser.java:3772)
+	at org.h2.command.Parser.readTermWithIdentifier(Parser.java:5142)
+	at org.h2.command.Parser.readTerm(Parser.java:4828)
+	at org.h2.command.Parser.readFactor(Parser.java:3323)
+	at org.h2.command.Parser.readSum(Parser.java:3310)
+	at org.h2.command.Parser.readConcat(Parser.java:3275)
+	at org.h2.command.Parser.readCondition(Parser.java:3065)
+	at org.h2.command.Parser.readExpression(Parser.java:2985)
+	at org.h2.command.Parser.parseSelectExpressions(Parser.java:2785)
+	at org.h2.command.Parser.parseSelect(Parser.java:2803)
+	at org.h2.command.Parser.parseQueryPrimary(Parser.java:2692)
+	at org.h2.command.Parser.parseQueryTerm(Parser.java:2547)
+	at org.h2.command.Parser.parseQueryExpressionBody(Parser.java:2526)
+	at org.h2.command.Parser.parseQueryExpressionBodyAndEndOfQuery(Parser.java:2519)
+	at org.h2.command.Parser.parseQueryExpression(Parser.java:2512)
+	at org.h2.command.Parser.parseQuery(Parser.java:2479)
+	at org.h2.command.Parser.parseInsert(Parser.java:1558)
+	at org.h2.command.Parser.parsePrepared(Parser.java:698)
+	at org.h2.command.Parser.parse(Parser.java:581)
+	at org.h2.command.Parser.parse(Parser.java:556)
+	at org.h2.command.Parser.prepareCommand(Parser.java:484)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:645)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:561)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1164)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95)
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java)
+	at liquibase.executor.jvm.JdbcExecutor$ExecuteStatementCallback.doInStatement(JdbcExecutor.java:441)
+	at liquibase.executor.jvm.JdbcExecutor.execute(JdbcExecutor.java:77)
+	at liquibase.executor.jvm.JdbcExecutor.execute(JdbcExecutor.java:160)
+	at liquibase.database.AbstractJdbcDatabase.execute(AbstractJdbcDatabase.java:1287)
+	at liquibase.database.AbstractJdbcDatabase.executeStatements(AbstractJdbcDatabase.java:1269)
+	at liquibase.changelog.ChangeSet.execute(ChangeSet.java:717)
+	at liquibase.changelog.visitor.UpdateVisitor.visit(UpdateVisitor.java:61)
+	at liquibase.changelog.ChangeLogIterator$2.lambda$null$0(ChangeLogIterator.java:109)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.changelog.ChangeLogIterator$2.lambda$run$1(ChangeLogIterator.java:109)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.Scope.child(Scope.java:260)
+	at liquibase.changelog.ChangeLogIterator$2.run(ChangeLogIterator.java:92)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.Scope.child(Scope.java:260)
+	at liquibase.Scope.child(Scope.java:264)
+	at liquibase.changelog.ChangeLogIterator.run(ChangeLogIterator.java:66)
+	at liquibase.command.core.AbstractUpdateCommandStep.lambda$run$0(AbstractUpdateCommandStep.java:103)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.command.core.AbstractUpdateCommandStep.run(AbstractUpdateCommandStep.java:100)
+	at liquibase.command.CommandScope.execute(CommandScope.java:212)
+	at liquibase.Liquibase.lambda$update$0(Liquibase.java:237)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.Liquibase.runInScope(Liquibase.java:1605)
+	at liquibase.Liquibase.update(Liquibase.java:229)
+	at liquibase.Liquibase.update(Liquibase.java:213)
+	at liquibase.integration.spring.SpringLiquibase.performUpdate(SpringLiquibase.java:329)
+	at liquibase.integration.spring.SpringLiquibase.afterPropertiesSet(SpringLiquibase.java:284)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1873)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1822)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:315)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:753)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1362)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1351)
+	at com.example.warehouse.WarehouseApplication.main(WarehouseApplication.java:31)
+2025-09-03 14:24:19.821334+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Функция "GEN_RANDOM_UUID" не найдена
+Function "GEN_RANDOM_UUID" not found; SQL statement:
+INSERT INTO products (id, name, article, description, category, price, quantity, last_quantity_change, created_at)
+SELECT
+    gen_random_uuid(),
+    CASE
+        WHEN x % 10 = 0 THEN 'Смартфон Samsung Galaxy S' || (23 + (x % 5))
+        WHEN x % 10 = 1 THEN 'Ноутбук Apple MacBook Pro ' || (13 + (x % 4)) || '"'
+        WHEN x % 10 = 2 THEN 'Кофеварка DeLonghi Magnifica ' || CHR(65 + (x % 5))
+        WHEN x % 10 = 3 THEN 'Телевизор LG OLED ' || (55 + (x % 6)) || 'C2'
+        WHEN x % 10 = 4 THEN 'Наушники Sony WH-1000XM' || (4 + (x % 3))
+        WHEN x % 10 = 5 THEN 'Планшет iPad Pro ' || (11 + (x % 2)) || '"'
+        WHEN x % 10 = 6 THEN 'Фитнес-браслет Xiaomi Mi Band ' || (6 + (x % 3))
+        WHEN x % 10 = 7 THEN 'Микроволновка Panasonic NN-GD' || (37 + (x % 5)) || 'S'
+        WHEN x % 10 = 8 THEN 'Робот-пылесос iRobot Roomba ' || (800 + (x % 100))
+        ELSE 'Умная колонка Яндекс Станция ' || (1 + (x % 3))
+    END,
+    CASE
+        WHEN x % 10 = 0 THEN 'SM-S' || (911 + x) || 'BZKDSEK'
+        WHEN x % 10 = 1 THEN 'MK' || (183 + x) || 'LL/A'
+        WHEN x % 10 = 2 THEN 'ECAM' || (22 + (x % 10)) || '.' || (110 + x) || '.B'
+        ELSE 'ART-' || x || '-' || SUBSTRING(CAST(RANDOM()*1000000 AS VARCHAR), 1, 6)
+    END,
+    CASE
+        WHEN x % 10 = 0 THEN 'Флагманский смартфон с динамическим AMOLED 2X экраном ' || (6.1 + (x % 10)/10) || '"'
+        WHEN x % 10 = 1 THEN 'Профессиональный ноутбук с процессором M' || (2 + (x % 3)) || ' Pro'
+        WHEN x % 10 = 2 THEN 'Автоматическая кофеварка с капучинатором, модель ' || (2020 + (x % 5))
+        ELSE 'Высококачественный продукт с уникальными характеристиками, версия ' || x
+    END,
+    CASE x % 7
+        WHEN 0 THEN 'ELECTRONICS'
+        WHEN 1 THEN 'CLOTHING'
+        WHEN 2 THEN 'FOOD'
+        WHEN 3 THEN 'FURNITURE'
+        WHEN 4 THEN 'FURNITURE'
+        WHEN 5 THEN 'FURNITURE'
+        ELSE 'OTHER'
+    END,
+    (100 + (x % 1000) * 5 + (x % 100)),
+    (1 + (x % 100)),
+    CURRENT_TIMESTAMP - (x % 30 || ' days')::INTERVAL,
+    CURRENT_TIMESTAMP - (x % 365 || ' days')::INTERVAL
+FROM generate_series(1, 1000) AS x; [90022-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.command.Parser.readFunction(Parser.java:3772)
+	at org.h2.command.Parser.readTermWithIdentifier(Parser.java:5142)
+	at org.h2.command.Parser.readTerm(Parser.java:4828)
+	at org.h2.command.Parser.readFactor(Parser.java:3323)
+	at org.h2.command.Parser.readSum(Parser.java:3310)
+	at org.h2.command.Parser.readConcat(Parser.java:3275)
+	at org.h2.command.Parser.readCondition(Parser.java:3065)
+	at org.h2.command.Parser.readExpression(Parser.java:2985)
+	at org.h2.command.Parser.parseSelectExpressions(Parser.java:2785)
+	at org.h2.command.Parser.parseSelect(Parser.java:2803)
+	at org.h2.command.Parser.parseQueryPrimary(Parser.java:2692)
+	at org.h2.command.Parser.parseQueryTerm(Parser.java:2547)
+	at org.h2.command.Parser.parseQueryExpressionBody(Parser.java:2526)
+	at org.h2.command.Parser.parseQueryExpressionBodyAndEndOfQuery(Parser.java:2519)
+	at org.h2.command.Parser.parseQueryExpression(Parser.java:2512)
+	at org.h2.command.Parser.parseQuery(Parser.java:2479)
+	at org.h2.command.Parser.parseInsert(Parser.java:1558)
+	at org.h2.command.Parser.parsePrepared(Parser.java:698)
+	at org.h2.command.Parser.parse(Parser.java:581)
+	at org.h2.command.Parser.parse(Parser.java:556)
+	at org.h2.command.Parser.prepareCommand(Parser.java:484)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:645)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:561)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1164)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95)
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java)
+	at liquibase.executor.jvm.JdbcExecutor$ExecuteStatementCallback.doInStatement(JdbcExecutor.java:441)
+	at liquibase.executor.jvm.JdbcExecutor.execute(JdbcExecutor.java:77)
+	at liquibase.executor.jvm.JdbcExecutor.execute(JdbcExecutor.java:160)
+	at liquibase.database.AbstractJdbcDatabase.execute(AbstractJdbcDatabase.java:1287)
+	at liquibase.database.AbstractJdbcDatabase.executeStatements(AbstractJdbcDatabase.java:1269)
+	at liquibase.changelog.ChangeSet.execute(ChangeSet.java:717)
+	at liquibase.changelog.visitor.UpdateVisitor.visit(UpdateVisitor.java:61)
+	at liquibase.changelog.ChangeLogIterator$2.lambda$null$0(ChangeLogIterator.java:109)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.changelog.ChangeLogIterator$2.lambda$run$1(ChangeLogIterator.java:109)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.Scope.child(Scope.java:260)
+	at liquibase.changelog.ChangeLogIterator$2.run(ChangeLogIterator.java:92)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.Scope.child(Scope.java:260)
+	at liquibase.Scope.child(Scope.java:264)
+	at liquibase.changelog.ChangeLogIterator.run(ChangeLogIterator.java:66)
+	at liquibase.command.core.AbstractUpdateCommandStep.lambda$run$0(AbstractUpdateCommandStep.java:103)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.command.core.AbstractUpdateCommandStep.run(AbstractUpdateCommandStep.java:100)
+	at liquibase.command.CommandScope.execute(CommandScope.java:212)
+	at liquibase.Liquibase.lambda$update$0(Liquibase.java:237)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.Liquibase.runInScope(Liquibase.java:1605)
+	at liquibase.Liquibase.update(Liquibase.java:229)
+	at liquibase.Liquibase.update(Liquibase.java:213)
+	at liquibase.integration.spring.SpringLiquibase.performUpdate(SpringLiquibase.java:329)
+	at liquibase.integration.spring.SpringLiquibase.afterPropertiesSet(SpringLiquibase.java:284)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1873)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1822)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:315)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:753)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1362)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1351)
+	at com.example.warehouse.WarehouseApplication.main(WarehouseApplication.java:31)
+2025-09-03 14:25:41.828524+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Функция "GEN_RANDOM_UUID" не найдена
+Function "GEN_RANDOM_UUID" not found; SQL statement:
+INSERT INTO products (id, name, article, description, category, price, quantity, last_quantity_change, created_at)
+SELECT
+    gen_random_uuid(),
+    CASE
+        WHEN x % 10 = 0 THEN 'Смартфон Samsung Galaxy S' || (23 + (x % 5))
+        WHEN x % 10 = 1 THEN 'Ноутбук Apple MacBook Pro ' || (13 + (x % 4)) || '"'
+        WHEN x % 10 = 2 THEN 'Кофеварка DeLonghi Magnifica ' || CHR(65 + (x % 5))
+        WHEN x % 10 = 3 THEN 'Телевизор LG OLED ' || (55 + (x % 6)) || 'C2'
+        WHEN x % 10 = 4 THEN 'Наушники Sony WH-1000XM' || (4 + (x % 3))
+        WHEN x % 10 = 5 THEN 'Планшет iPad Pro ' || (11 + (x % 2)) || '"'
+        WHEN x % 10 = 6 THEN 'Фитнес-браслет Xiaomi Mi Band ' || (6 + (x % 3))
+        WHEN x % 10 = 7 THEN 'Микроволновка Panasonic NN-GD' || (37 + (x % 5)) || 'S'
+        WHEN x % 10 = 8 THEN 'Робот-пылесос iRobot Roomba ' || (800 + (x % 100))
+        ELSE 'Умная колонка Яндекс Станция ' || (1 + (x % 3))
+    END,
+    CASE
+        WHEN x % 10 = 0 THEN 'SM-S' || (911 + x) || 'BZKDSEK'
+        WHEN x % 10 = 1 THEN 'MK' || (183 + x) || 'LL/A'
+        WHEN x % 10 = 2 THEN 'ECAM' || (22 + (x % 10)) || '.' || (110 + x) || '.B'
+        ELSE 'ART-' || x || '-' || SUBSTRING(CAST(RANDOM()*1000000 AS VARCHAR), 1, 6)
+    END,
+    CASE
+        WHEN x % 10 = 0 THEN 'Флагманский смартфон с динамическим AMOLED 2X экраном ' || (6.1 + (x % 10)/10) || '"'
+        WHEN x % 10 = 1 THEN 'Профессиональный ноутбук с процессором M' || (2 + (x % 3)) || ' Pro'
+        WHEN x % 10 = 2 THEN 'Автоматическая кофеварка с капучинатором, модель ' || (2020 + (x % 5))
+        ELSE 'Высококачественный продукт с уникальными характеристиками, версия ' || x
+    END,
+    CASE x % 7
+        WHEN 0 THEN 'ELECTRONICS'
+        WHEN 1 THEN 'CLOTHING'
+        WHEN 2 THEN 'FOOD'
+        WHEN 3 THEN 'FURNITURE'
+        WHEN 4 THEN 'FURNITURE'
+        WHEN 5 THEN 'FURNITURE'
+        ELSE 'OTHER'
+    END,
+    (100 + (x % 1000) * 5 + (x % 100)),
+    (1 + (x % 100)),
+    CURRENT_TIMESTAMP - (x % 30 || ' days')::INTERVAL,
+    CURRENT_TIMESTAMP - (x % 365 || ' days')::INTERVAL
+FROM generate_series(1, 1000) AS x; [90022-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.command.Parser.readFunction(Parser.java:3772)
+	at org.h2.command.Parser.readTermWithIdentifier(Parser.java:5142)
+	at org.h2.command.Parser.readTerm(Parser.java:4828)
+	at org.h2.command.Parser.readFactor(Parser.java:3323)
+	at org.h2.command.Parser.readSum(Parser.java:3310)
+	at org.h2.command.Parser.readConcat(Parser.java:3275)
+	at org.h2.command.Parser.readCondition(Parser.java:3065)
+	at org.h2.command.Parser.readExpression(Parser.java:2985)
+	at org.h2.command.Parser.parseSelectExpressions(Parser.java:2785)
+	at org.h2.command.Parser.parseSelect(Parser.java:2803)
+	at org.h2.command.Parser.parseQueryPrimary(Parser.java:2692)
+	at org.h2.command.Parser.parseQueryTerm(Parser.java:2547)
+	at org.h2.command.Parser.parseQueryExpressionBody(Parser.java:2526)
+	at org.h2.command.Parser.parseQueryExpressionBodyAndEndOfQuery(Parser.java:2519)
+	at org.h2.command.Parser.parseQueryExpression(Parser.java:2512)
+	at org.h2.command.Parser.parseQuery(Parser.java:2479)
+	at org.h2.command.Parser.parseInsert(Parser.java:1558)
+	at org.h2.command.Parser.parsePrepared(Parser.java:698)
+	at org.h2.command.Parser.parse(Parser.java:581)
+	at org.h2.command.Parser.parse(Parser.java:556)
+	at org.h2.command.Parser.prepareCommand(Parser.java:484)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:645)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:561)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1164)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95)
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java)
+	at liquibase.executor.jvm.JdbcExecutor$ExecuteStatementCallback.doInStatement(JdbcExecutor.java:441)
+	at liquibase.executor.jvm.JdbcExecutor.execute(JdbcExecutor.java:77)
+	at liquibase.executor.jvm.JdbcExecutor.execute(JdbcExecutor.java:160)
+	at liquibase.database.AbstractJdbcDatabase.execute(AbstractJdbcDatabase.java:1287)
+	at liquibase.database.AbstractJdbcDatabase.executeStatements(AbstractJdbcDatabase.java:1269)
+	at liquibase.changelog.ChangeSet.execute(ChangeSet.java:717)
+	at liquibase.changelog.visitor.UpdateVisitor.visit(UpdateVisitor.java:61)
+	at liquibase.changelog.ChangeLogIterator$2.lambda$null$0(ChangeLogIterator.java:109)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.changelog.ChangeLogIterator$2.lambda$run$1(ChangeLogIterator.java:109)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.Scope.child(Scope.java:260)
+	at liquibase.changelog.ChangeLogIterator$2.run(ChangeLogIterator.java:92)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.Scope.child(Scope.java:260)
+	at liquibase.Scope.child(Scope.java:264)
+	at liquibase.changelog.ChangeLogIterator.run(ChangeLogIterator.java:66)
+	at liquibase.command.core.AbstractUpdateCommandStep.lambda$run$0(AbstractUpdateCommandStep.java:103)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.command.core.AbstractUpdateCommandStep.run(AbstractUpdateCommandStep.java:100)
+	at liquibase.command.CommandScope.execute(CommandScope.java:212)
+	at liquibase.Liquibase.lambda$update$0(Liquibase.java:237)
+	at liquibase.Scope.lambda$child$0(Scope.java:194)
+	at liquibase.Scope.child(Scope.java:203)
+	at liquibase.Scope.child(Scope.java:193)
+	at liquibase.Scope.child(Scope.java:172)
+	at liquibase.Liquibase.runInScope(Liquibase.java:1605)
+	at liquibase.Liquibase.update(Liquibase.java:229)
+	at liquibase.Liquibase.update(Liquibase.java:213)
+	at liquibase.integration.spring.SpringLiquibase.performUpdate(SpringLiquibase.java:329)
+	at liquibase.integration.spring.SpringLiquibase.afterPropertiesSet(SpringLiquibase.java:284)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1873)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1822)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:315)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:753)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1362)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1351)
+	at com.example.warehouse.WarehouseApplication.main(WarehouseApplication.java:31)

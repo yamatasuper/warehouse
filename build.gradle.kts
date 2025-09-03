@@ -16,6 +16,7 @@ java {
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 	flatDir {
 		dirs("libs")
 	}
@@ -99,7 +100,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
 
-	implementation("com.example:exception-handler-starter:1.0.0")
+//	implementation("com.example:exception-handler-starter")
 
 	// Для работы с Multipart файлами
 	implementation("commons-io:commons-io:2.11.0")
