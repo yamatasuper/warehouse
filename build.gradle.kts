@@ -111,6 +111,16 @@ dependencies {
 // Zeebe (для работы с Camunda Cloud/Zeebe)
 	implementation("io.camunda:spring-zeebe-starter:8.5.0")
 	implementation("io.camunda:zeebe-client-java:8.5.0")
+
+	testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:3.0.1")
+	testImplementation("org.mockito:mockito-core:4.7.0")
+	testImplementation("org.mockito:mockito-inline:4.7.0")
+	testImplementation("javax.servlet:javax.servlet-api:4.0.1")
+
+	testImplementation("org.testcontainers:kafka:1.18.3")
+	testImplementation("org.testcontainers:junit-jupiter:1.18.3")
+
+
 }
 
 tasks.withType<Test> {

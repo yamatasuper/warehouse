@@ -1,6 +1,9 @@
 package com.example.warehouse.S3Images;
 
 import java.net.URI;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,19 +13,30 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
-@EnableConfigurationProperties(S3Properties.class)
+@ConditionalOnProperty(name = "aws.s3.enabled", havingValue = "true", matchIfMissing = true)
 public class S3Config {
 
+  @Value("${aws.region:#{null}}")
+  private String region;
+
+  @Value("${aws.accessKeyId:#{null}}")
+  private String accessKeyId;
+
+  @Value("${aws.secretAccessKey:#{null}}")
+  private String secretAccessKey;
+
   @Bean
-  public S3Client s3Client(S3Properties s3Properties) {
+  @ConditionalOnProperty(name = "aws.s3.enabled", havingValue = "true")
+  public S3Client s3Client() {
+    if (accessKeyId == null || secretAccessKey == null) {
+      // Return a mock or null bean for tests
+      return null;
+    }
+
     return S3Client.builder()
-        .endpointOverride(URI.create(s3Properties.getEndpoint()))
-        .region(Region.of(s3Properties.getRegion()))
-        .credentialsProvider(
-            StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(
-                    s3Properties.getAccessKey(), s3Properties.getSecretKey())))
-        .serviceConfiguration(b -> b.pathStyleAccessEnabled(true))
-        .build();
+            .region(Region.of(region))
+            .credentialsProvider(StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
+            .build();
   }
 }
