@@ -63,6 +63,7 @@ currency:
 
 aws:
   s3:
+    enabled: true
     endpoint: http://192.168.0.21:9000
     region: us-east-1
     access-key: minioadmin

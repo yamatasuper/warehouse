@@ -13,30 +13,25 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
-@ConditionalOnProperty(name = "aws.s3.enabled", havingValue = "true", matchIfMissing = true)
+@EnableConfigurationProperties(S3Properties.class)
 public class S3Config {
 
-  @Value("${aws.region:#{null}}")
-  private String region;
+    @Bean
+    @ConditionalOnProperty(name = "aws.s3.enabled", havingValue = "true", matchIfMissing = true)
+    public S3Client s3Client(S3Properties s3Properties) {
+        if (s3Properties.getAccessKey() == null || s3Properties.getSecretKey() == null) {
+            // Handle missing credentials appropriately
+            throw new IllegalStateException("AWS credentials are required when S3 is enabled");
+        }
 
-  @Value("${aws.accessKeyId:#{null}}")
-  private String accessKeyId;
-
-  @Value("${aws.secretAccessKey:#{null}}")
-  private String secretAccessKey;
-
-  @Bean
-  @ConditionalOnProperty(name = "aws.s3.enabled", havingValue = "true")
-  public S3Client s3Client() {
-    if (accessKeyId == null || secretAccessKey == null) {
-      // Return a mock or null bean for tests
-      return null;
+        return S3Client.builder()
+                .endpointOverride(URI.create(s3Properties.getEndpoint()))
+                .region(Region.of(s3Properties.getRegion()))
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(
+                                AwsBasicCredentials.create(
+                                        s3Properties.getAccessKey(), s3Properties.getSecretKey())))
+                .serviceConfiguration(b -> b.pathStyleAccessEnabled(true))
+                .build();
     }
-
-    return S3Client.builder()
-            .region(Region.of(region))
-            .credentialsProvider(StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
-            .build();
-  }
 }
