@@ -55,15 +55,36 @@ public class GlobalExceptionHandler {
     )
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllUncaughtException(Exception ex) {
-        ErrorResponse response = ErrorResponse.builder()
+        ErrorDetails details = ErrorDetails.builder()
+                .exceptionName(ex.getClass().getSimpleName())
+                .className(ex.getClass().getName())
+                .message(ex.getMessage())
                 .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message("Произошла непредвиденная ошибка")
-                .exceptionType(ex.getClass().getSimpleName())
+                .build();
+        ErrorResponse response = ErrorResponse.builder()
+                .errorDetails(details)
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
                 .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(DeleteResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDeleteResource(DeleteResourceException ex) {
+        ErrorDetails details = ErrorDetails.builder()
+                .exceptionName(ex.getClass().getSimpleName())
+                .className(ex.getClass().getName())
+                .message(ex.getMessage())
+                .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
+                .build();
+        ErrorResponse response = ErrorResponse.builder()
+                .errorDetails(details)
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     /**
@@ -91,19 +112,16 @@ public class GlobalExceptionHandler {
     )
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.toList());
-
-        ErrorResponse response = ErrorResponse.builder()
+        ErrorDetails details = ErrorDetails.builder()
+                .exceptionName(ex.getClass().getSimpleName())
+                .className(ex.getClass().getName())
+                .message(ex.getMessage())
                 .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message("Validation failed")
-                .details(errors)
-                .exceptionType(ex.getClass().getSimpleName())
+                .build();
+        ErrorResponse response = ErrorResponse.builder()
+                .errorDetails(details)
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
                 .build();
 
         return ResponseEntity.badRequest().body(response);
@@ -133,12 +151,16 @@ public class GlobalExceptionHandler {
     )
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
-        ErrorResponse response = ErrorResponse.builder()
-                .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
-                .status(HttpStatus.CONFLICT.value())
-                .error(HttpStatus.CONFLICT.getReasonPhrase())
+        ErrorDetails details = ErrorDetails.builder()
+                .exceptionName(ex.getClass().getSimpleName())
+                .className(ex.getClass().getName())
                 .message(ex.getMessage())
-                .exceptionType(ex.getClass().getSimpleName())
+                .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
+                .build();
+        ErrorResponse response = ErrorResponse.builder()
+                .errorDetails(details)
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
@@ -165,15 +187,19 @@ public class GlobalExceptionHandler {
     )
     @ExceptionHandler(InvalidParameterException.class)
     public ResponseEntity<ErrorResponse> handleInvalidParameter(InvalidParameterException ex) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+        ErrorDetails details = ErrorDetails.builder()
+                .exceptionName(ex.getClass().getSimpleName())
+                .className(ex.getClass().getName())
                 .message(ex.getMessage())
-                .exceptionType(ex.getClass().getSimpleName())
+                .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
+                .build();
+        ErrorResponse response = ErrorResponse.builder()
+                .errorDetails(details)
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
                 .build();
 
-        return ResponseEntity.badRequest().body(errorResponse);
+        return ResponseEntity.badRequest().body(response);
     }
 
     // Добавьте обработчик для 404 ошибки, если у вас есть такой исключение
@@ -199,12 +225,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
-        ErrorResponse response = ErrorResponse.builder()
+        ErrorDetails details = ErrorDetails.builder()
+                .exceptionName(ex.getClass().getSimpleName())
+                .className(ex.getClass().getName())
+                .message(ex.getMessage())
                 .timestamp(ZonedDateTime.now(ZoneOffset.UTC))
+                .build();
+        ErrorResponse response = ErrorResponse.builder()
+                .errorDetails(details)
                 .status(HttpStatus.NOT_FOUND.value())
                 .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .message(ex.getMessage())
-                .exceptionType(ex.getClass().getSimpleName())
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);

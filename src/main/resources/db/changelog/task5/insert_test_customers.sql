@@ -15,6 +15,9 @@ INSERT INTO products (id, name, article, description, category, price, quantity,
 ('1b2c3338-abcd-57e6-b1c1-d8e1de86f005', 'Smartphone', 'ART002', 'Latest smartphone model', 'ELECTRONICS', 699.99, 25.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('2c3d4449-cdef-68f7-c2d2-e9f2ef97a116', 'Headphones', 'ART003', 'Wireless noise-cancelling', 'ELECTRONICS', 199.99, 50.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
+INSERT INTO customers (login, email, is_active, created_at) VALUES
+('john_doe', 'john.doe@example.com', true, '2023-01-15 10:30:00+03');
+
 -- 2. Orders
 INSERT INTO orders (id, customer_id, status, delivery_address, created_at, updated_at) VALUES
 ('7294be20-8da2-4cad-bca3-1e0b446f9759', 1, 'CREATED', '123 Main St, New York, NY', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
