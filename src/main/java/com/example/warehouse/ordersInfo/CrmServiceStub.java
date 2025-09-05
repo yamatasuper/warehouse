@@ -6,13 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
-@Profile("!prod") // Только для разработки и тестирования
+@RestController
+@Profile("!prod")
 @Slf4j
 public class CrmServiceStub {
 
