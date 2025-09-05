@@ -55,7 +55,7 @@ app:
 currency-service:
   host: http://currencies-service:8090
   methods:
-    get-currency: /api/rates
+    get-currency: /api/v1/currencies
 
 currency:
   service:
