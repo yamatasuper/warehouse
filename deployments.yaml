@@ -1,0 +1,226 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warehouse-app
+  namespace: warehouse-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: warehouse-app
+  template:
+    metadata:
+      labels:
+        app: warehouse-app
+    spec:
+      containers:
+        - name: warehouse-app
+          image: yamatasuper/warehouse-app:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "k8s,kafka"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config/application.yml
+              subPath: application.yml
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: warehouse-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: currencies-service
+  namespace: warehouse-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: currencies-service
+  template:
+    metadata:
+      labels:
+        app: currencies-service
+    spec:
+      containers:
+        - name: currencies-service
+          image: yamatasuper/currencies-service:latest
+          ports:
+            - containerPort: 8090
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: warehouse-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "postgres"
+            - name: POSTGRES_DB
+              value: "warehouse"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: warehouse-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+        - name: zookeeper
+          image: confluentinc/cp-zookeeper:7.4.0
+          ports:
+            - containerPort: 2181
+          env:
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: "2181"
+            - name: ZOOKEEPER_TICK_TIME
+              value: "2000"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+  namespace: warehouse-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: confluentinc/cp-kafka:7.4.0
+          ports:
+            - containerPort: 9092
+          env:
+            - name: KAFKA_BROKER_ID
+              value: "1"
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "zookeeper:2181"
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://kafka:9092"
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: "PLAINTEXT:PLAINTEXT"
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: "PLAINTEXT"
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zeebe
+  namespace: warehouse-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zeebe
+  template:
+    metadata:
+      labels:
+        app: zeebe
+    spec:
+      containers:
+        - name: zeebe
+          image: camunda/zeebe:8.5.0
+          ports:
+            - containerPort: 26500
+            - containerPort: 9600
+          env:
+            - name: ZEEBE_BROKER_CLUSTER_NODEID
+              value: "0"
+            - name: ZEEBE_BROKER_CLUSTER_CLUSTERSIZE
+              value: "1"
+            - name: ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT
+              value: "1"
+            - name: ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR
+              value: "1"
+            - name: ZEEBE_BROKER_CLUSTER_RAFT_REQUESTTIMEOUT
+              value: "10s"
+            - name: ZEEBE_BROKER_NETWORK_HOST
+              value: "0.0.0.0"
+            - name: ZEEBE_BROKER_NETWORK_ADVERTISEDHOST
+              value: "zeebe"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"

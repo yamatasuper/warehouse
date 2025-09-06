@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: warehouse-config
+  namespace: warehouse-app
+data:
+  application.yml: |
+    spring:
+      kafka:
+        bootstrap-servers: kafka:9092
+        consumer:
+          group-id: order-service-group
+          auto-offset-reset: earliest
+          key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+        producer:
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+        properties:
+          spring.json.trusted.packages: "*"
+
+      datasource:
+        url: jdbc:postgresql://postgres:5432/warehouse
+        username: postgres
+        password: postgres
+        driver-class-name: org.postgresql.Driver
+        hikari:
+          maximum-pool-size: 10
+          minimum-idle: 2
+          connection-timeout: 30000
+          idle-timeout: 600000
+          max-lifetime: 1800000
+
+      jpa:
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        hibernate:
+          ddl-auto: validate
+        properties:
+          hibernate:
+            format_sql: true
+            show_sql: true
+
+      h2:
+        console:
+          enabled: false
+
+      liquibase:
+        change-log: classpath:db/changelog/db.changelog-master.yaml
+        enabled: true
+
+    app:
+      integration:
+        services:
+          account:
+            url: http://currencies-service:8081/api/accounts
+          crm:
+            url: http://currencies-service:8081/api/customers/inn
+
+    currency-service:
+      host: http://currencies-service:8090
+      methods:
+        get-currency: /api/v1/currencies
+
+    currency:
+      service:
+        client: real
+
+    aws:
+      s3:
+        enabled: true
+        endpoint: http://minio:9000
+        region: us-east-1
+        access-key: minioadmin
+        secret-key: minioadmin
+        bucket-name: product-images
+
+    camunda:
+      bpm:
+        database:
+          type: postgres
+          schema-update: true
+        history-level: full
+        job-execution:
+          enabled: true
+        admin-user:
+          id: demo
+          password: demo
+
+      datasource:
+        url: jdbc:postgresql://postgres:5432/camunda
+        username: postgres
+        password: postgres
+        driver-class-name: org.postgresql.Driver
+
+      app:
+        kafka:
+          topics:
+            test-topic: test_topic
+            order-events: order_events
+
+    zeebe:
+      client:
+        broker:
+          gateway-address: zeebe:26500
+        security:
+          plaintext: true
+        worker:
+          maxJobsActive: 32
+          threads: 2
+          timeout: 1000
+
+    logging:
+      level:
+        org.springframework.web: DEBUG
+        org.springframework.orm.jpa: DEBUG
+        org.hibernate: DEBUG
+        com.example.warehouse: DEBUG
+      pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+    server:
+      port: 8080
+      servlet:
+        context-path: /
+      compression:
+        enabled: true
+        mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+        min-response-size: 1024
