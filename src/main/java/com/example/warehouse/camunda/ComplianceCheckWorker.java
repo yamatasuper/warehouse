@@ -1,5 +1,6 @@
 package com.example.warehouse.camunda;
 
+import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -18,10 +19,17 @@ public class ComplianceCheckWorker {
     private final OrderOrchestrationService orchestrationService;
     private final ZeebeClient zeebeClient;
 
+    // Для Camunda
+    public void checkCompliance(DelegateExecution execution) {
+        String businessKey = (String) execution.getVariable("businessKey");
+        Boolean approved = true; // можно логика проверки
+        execution.setVariable("complianceApproved", approved);
+    }
+
+    // Для Zeebe
     @JobWorker(type = "SendComplianceCheck")
     public void handleComplianceCheckTask(final ActivatedJob job) {
         Map<String, Object> variables = job.getVariablesAsMap();
-
         String businessKey = (String) variables.get("businessKey");
         String login = (String) variables.get("login");
         String inn = (String) variables.get("inn");

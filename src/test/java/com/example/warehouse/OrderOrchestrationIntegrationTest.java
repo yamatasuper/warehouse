@@ -74,7 +74,7 @@ public class OrderOrchestrationIntegrationTest {
     @MockBean
     private ZeebeClient zeebeClient;
 
-    @MockBean
+
     private ComplianceCheckWorker complianceCheckWorker;
 
     @MockBean
@@ -176,9 +176,20 @@ public class OrderOrchestrationIntegrationTest {
         OrderConfirmRequest request = new OrderConfirmRequest();
         // Set request properties if needed
 
-        UUID businessKey = orchestrationService.startOrderConfirmationProcess(
-                order.getId(), request
-        );
+        // 3. Start orchestration
+        UUID businessKey = orchestrationService.startOrderConfirmationProcess(order.getId(), request);
+
+// Получаем ID процесса по businessKey
+        String processInstanceId = processEngine.getRuntimeService()
+                .createProcessInstanceQuery()
+                .processInstanceBusinessKey(businessKey.toString())
+                .singleResult()
+                .getId();
+
+// Устанавливаем переменную для этого конкретного процесса
+        processEngine.getRuntimeService()
+                .setVariable(processInstanceId, "complianceApproved", true);
+
 
         // 4. Simulate compliance approval
         ComplianceResponseMessage complianceResponse = new ComplianceResponseMessage();
