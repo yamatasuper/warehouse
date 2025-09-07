@@ -1,12 +1,18 @@
 #!/bin/bash
 
-## Остановить все запущенные контейнеры
-#docker stop $(docker ps -aq)
-#
-## Удалить все контейнеры
-#docker rm $(docker ps -aq)
+# Остановить все запущенные контейнеры
+docker stop $(docker ps -aq)
 
-#docker build -t yamatasuper/warehouse-app:latest .
-#docker build -t yamatasuper/currencies-service:latest .
-#docker push yamatasuper/warehouse-app:latest
-#docker push yamatasuper/currencies-service:latest
+# Удалить все контейнеры
+docker rm $(docker ps -aq)
+
+docker build -t yamatasuper/warehouse-app:latest .
+docker build -t yamatasuper/currencies-service:latest .
+docker push yamatasuper/warehouse-app:latest
+docker push yamatasuper/currencies-service:latest
+
+# Если кластер не создан, создайте его
+kind create cluster --name warehouse
+
+# Или если кластер уже существует но не запущен
+kind start cluster --name warehouse

@@ -15,75 +15,64 @@ echo "💾 Создаем PVC для PostgreSQL..."
 kubectl apply -f pvc.yaml
 
 # Ждем пока PVC будет готов
-sleep 3
+echo "⏳ Ждем готовности PVC..."
+sleep 5
 
-# Деплоим сервисы в правильном порядке
-echo "🐘 Запускаем PostgreSQL deployment..."
+# Деплоим все компоненты
+echo "🐘 Запускаем все deployments..."
 kubectl apply -f deployments.yaml
 
-echo "⏳ Ждем запуска PostgreSQL..."
-kubectl wait --namespace=warehouse-app --for=condition=ready pod -l app=postgres --timeout=120s
+# Функция для ожидания готовности пода
+wait_for_pod() {
+    local app_label=$1
+    local timeout=60
+    local attempt=0
 
-echo "✅ PostgreSQL запущен"
+    echo "⏳ Ждем запуска $app_label..."
 
-echo "🦘 Запускаем Zookeeper..."
-kubectl apply -f deployments.yaml
+    while [ $attempt -lt $timeout ]; do
+        # Проверяем, есть ли вообще под с таким лейблом
+        if ! kubectl get pod -n warehouse-app -l app=$app_label &> /dev/null; then
+            echo "❌ Под с лейблом app=$app_label не найден"
+            return 1
+        fi
 
-echo "📊 Ждем запуска Zookeeper..."
-kubectl wait --namespace=warehouse-app --for=condition=ready pod -l app=zookeeper --timeout=120s
+        # Проверяем готовность
+        if kubectl get pod -n warehouse-app -l app=$app_label -o jsonpath='{.items[*].status.conditions[?(@.type=="Ready")].status}' | grep -q "True"; then
+            echo "✅ $app_label запущен и готов"
+            return 0
+        fi
 
-echo "✅ Zookeeper запущен"
+        attempt=$((attempt + 5))
+        sleep 5
+        echo "Ожидание $app_label: $attempt/$timeout секунд"
+    done
 
-echo "🚀 Запускаем Kafka..."
-kubectl apply -f deployments.yaml
+    echo "❌ Таймаут ожидания $app_label"
+    kubectl describe pod -n warehouse-app -l app=$app_label
+    kubectl logs -n warehouse-app -l app=$app_label
+    return 1
+}
 
-echo "📊 Ждем запуска Kafka..."
-kubectl wait --namespace=warehouse-app --for=condition=ready pod -l app=kafka --timeout=120s
+# Ожидаем компоненты в правильном порядке
+wait_for_pod "postgres"
+wait_for_pod "zookeeper"
+wait_for_pod "kafka"
+sleep 10  # Даем Kafka время на инициализацию
+wait_for_pod "zeebe"
+wait_for_pod "currencies-service"
+wait_for_pod "warehouse-app"
 
-echo "✅ Kafka запущена"
-
-echo "⚡ Запускаем Zeebe..."
-kubectl apply -f deployments.yaml
-
-echo "⏳ Ждем запуска Zeebe..."
-sleep 10 # Даем Zeebe время на запуск
-kubectl wait --namespace=warehouse-app --for=condition=ready pod -l app=zeebe --timeout=120s
-
-echo "✅ Zeebe запущен"
-
-echo "🔄 Запускаем Currencies Service..."
-kubectl apply -f deployments.yaml
-
-echo "⏳ Ждем запуска Currencies Service..."
-kubectl wait --namespace=warehouse-app --for=condition=ready pod -l app=currencies-service --timeout=120s
-
-echo "✅ Currencies Service запущен"
-
-echo "🏢 Запускаем основное приложение..."
-kubectl apply -f configmap.yaml
-kubectl apply -f deployments.yaml
-
-echo "⏳ Ждем запуска основного приложения..."
-kubectl wait --namespace=warehouse-app --for=condition=ready pod -l app=warehouse-app --timeout=120s
-
-echo "✅ Основное приложение запущено"
-
-echo "🔗 Создаем сервисы..."
+echo "🔗 Применяем сервисы..."
 kubectl apply -f services.yaml
 
-echo "✅ Сервисы созданы"
-
-echo "📊 Проверяем статус всех подов:"
+echo "✅ Все компоненты запущены!"
+echo "📊 Проверяем статус:"
 kubectl get pods -n warehouse-app -o wide
 
-echo "🌐 Проверяем сервисы:"
+echo "🌐 Сервисы:"
 kubectl get svc -n warehouse-app
 
-echo "📋 Проверяем логи PostgreSQL:"
-kubectl logs -n warehouse-app -l app=postgres --tail=10
-
-echo "🚀 Для доступа к приложению используйте:"
+echo "🚀 Для доступа к приложению:"
 echo "kubectl port-forward -n warehouse-app svc/warehouse-app 8080:8080"
 echo "Затем откройте http://localhost:8080"
-
-echo "✅ Деплой завершен!"
