@@ -1,5 +1,52 @@
 #!/bin/bash
-
+#
+#docker stop $(docker ps -aq) 2>/dev/null || true
+#docker rm $(docker ps -aq) 2>/dev/null || true
+#
+#docker rmi -f $(docker images -q) 2>/dev/null || true
+#
+#docker volume rm $(docker volume ls -q) 2>/dev/null || true
+#
+#docker network rm $(docker network ls -q) 2>/dev/null || true
+#
+#kubectl delete all --all -n warehouse-app
+#
+#kubectl delete pvc --all -n warehouse-app
+#kubectl delete configmap --all -n warehouse-app
+#
+#kubectl delete namespace warehouse-app
+#
+## Остановить все запущенные контейнеры
+#docker stop $(docker ps -aq)
+#
+## Удалить все контейнеры
+#docker rm $(docker ps -aq)
+#
+## Вместо простых команд build:
+#docker build --platform linux/amd64 -t yamatasuper/warehouse-app:latest .
+#docker build --platform linux/amd64 -t yamatasuper/currencies-service:latest .
+#docker push yamatasuper/warehouse-app:latest
+#docker push yamatasuper/currencies-service:latest
+#
+## Если кластер не создан, создайте его
+#kind create cluster --name warehouse
+#
+## Или если кластер уже существует но не запущен
+#kind start cluster --name warehouse
+#
+#
+#
+#echo "🧹 Удаляем приложение из Kubernetes..."
+#
+#kubectl delete -f ingress.yaml 2>/dev/null || true
+#kubectl delete -f services.yaml 2>/dev/null || true
+#kubectl delete -f deployments.yaml 2>/dev/null || true
+#kubectl delete -f configmap.yaml 2>/dev/null || true
+#kubectl delete -f pvc.yaml 2>/dev/null || true
+#kubectl delete -f namespace.yaml 2>/dev/null || true
+#
+#echo "✅ Очистка завершена!"
+#
 # Скрипт деплоя приложения в Kubernetes
 
 set -e
@@ -25,7 +72,7 @@ kubectl apply -f deployments.yaml
 # Функция для ожидания готовности пода
 wait_for_pod() {
     local app_label=$1
-    local timeout=60
+    local timeout=300
     local attempt=0
 
     echo "⏳ Ждем запуска $app_label..."

@@ -21,10 +21,6 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "k8s,kafka"
-          volumeMounts:
-            - name: config-volume
-              mountPath: /app/config/application.yml
-              subPath: application.yml
           resources:
             requests:
               memory: "512Mi"
@@ -32,10 +28,6 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "500m"
-      volumes:
-        - name: config-volume
-          configMap:
-            name: warehouse-config
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -165,12 +157,14 @@ spec:
               value: "1"
             - name: KAFKA_ZOOKEEPER_CONNECT
               value: "zookeeper:2181"
+            - name: KAFKA_LISTENERS
+              value: PLAINTEXT://:9092
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: "PLAINTEXT://kafka:9092"
+              value: PLAINTEXT://kafka:9092
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-              value: "PLAINTEXT:PLAINTEXT"
+              value: PLAINTEXT:PLAINTEXT
             - name: KAFKA_INTER_BROKER_LISTENER_NAME
-              value: "PLAINTEXT"
+              value: PLAINTEXT
             - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
               value: "1"
           resources:
@@ -180,6 +174,7 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "500m"
+
 ---
 apiVersion: apps/v1
 kind: Deployment

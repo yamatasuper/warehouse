@@ -1,12 +1,12 @@
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM eclipse-temurin:17-jdk-jammy AS build
 WORKDIR /app
 COPY . .
-COPY libs/ /app/libs/
 RUN ./gradlew bootJar -x test --no-daemon
 
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar/
+# Use wildcard to find the actual JAR file name
+COPY --from=build /app/build/libs/*.jar app.jar
 COPY src/main/resources/application-docker.yml /app/config/application-docker.yml
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar", "--spring.config.location=file:/app/config/application-docker.yml"]
