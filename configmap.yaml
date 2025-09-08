@@ -76,9 +76,6 @@ data:
 
     camunda:
       bpm:
-        database:
-          type: postgres
-          schema-update: true
         history-level: full
         job-execution:
           enabled: true

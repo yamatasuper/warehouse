@@ -73,6 +73,10 @@ aws:
 # Конфигурация Camunda
 camunda:
   bpm:
+    datasource:
+      url: jdbc:postgresql://db:5432/camunda  # ← Используем ту же базу
+      username: postgres
+      password: postgres
     client:
       base-url: http://localhost:8080/engine-rest
       async-response-timeout: 10000
@@ -85,23 +89,12 @@ camunda:
           lock-duration: 10000
         make-payment:
           lock-duration: 10000
-    database:
-      type: postgres
-      schema-update: true
     history-level: full
     job-execution:
       enabled: true
     admin-user:
       id: demo
       password: demo
-
-  # Отдельный datasource для Camunda
-  datasource:
-    url: jdbc:postgresql://db:5432/camunda
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-
   app:
     kafka:
       topics:
@@ -127,6 +120,7 @@ logging:
     org.springframework.orm.jpa: DEBUG
     org.hibernate: DEBUG
     com.example.warehouse: DEBUG
+    org.camunda.bpm: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 

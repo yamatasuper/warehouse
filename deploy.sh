@@ -21,7 +21,7 @@
 #
 ## Удалить все контейнеры
 #docker rm $(docker ps -aq)
-#
+##
 ## Вместо простых команд build:
 #docker build --platform linux/amd64 -t yamatasuper/warehouse-app:latest .
 #docker build --platform linux/amd64 -t yamatasuper/currencies-service:latest .
