@@ -104,14 +104,6 @@ dependencies {
 	// Для работы с Multipart файлами
 	implementation("commons-io:commons-io:2.11.0")
 
-	// Camunda BPM (для ProcessEngine, RuntimeService, TaskService)
-	implementation("org.camunda.bpm:camunda-engine-spring:7.20.0")
-	implementation("org.camunda.bpm:camunda-engine:7.20.0")
-
-// Zeebe (для работы с Camunda Cloud/Zeebe)
-	implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.22.0")
-	implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.22.0")
-
 	testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:3.0.1")
 	testImplementation("org.mockito:mockito-core:4.7.0")
 	testImplementation("org.mockito:mockito-inline:4.7.0")
@@ -120,12 +112,17 @@ dependencies {
 	testImplementation("org.testcontainers:kafka:1.18.3")
 	testImplementation("org.testcontainers:junit-jupiter:1.18.3")
 
-	testImplementation("io.camunda:zeebe-process-test-extension:8.8.0-alpha8")
 	testImplementation("org.awaitility:awaitility:4.2.0")
 	testImplementation("com.github.tomakehurst:wiremock:3.0.1")
 
+	// Camunda BPM (для ProcessEngine, RuntimeService, TaskService)
+	//implementation("org.camunda.bpm:camunda-engine-spring:7.20.0")
+	implementation("org.camunda.bpm:camunda-engine:7.20.0")
+	// Zeebe (для работы с Camunda Cloud/Zeebe)
+	implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.22.0")
+	//implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.22.0")
 	implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-external-task-client:7.22.0")
-
+	testImplementation("io.camunda:zeebe-process-test-extension:8.8.0-alpha8")
 }
 
 tasks.withType<Test> {
