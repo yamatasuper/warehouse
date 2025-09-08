@@ -23,6 +23,7 @@ import com.example.warehouse.orders.OrderService;
 import com.example.warehouse.orders.OrderStatus;
 import com.example.warehouse.persistence.repository.ProductRepository;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,8 @@ import java.util.concurrent.TimeUnit;
 
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
+import io.camunda.zeebe.client.api.response.DeploymentEvent;
+import io.camunda.zeebe.client.api.response.Topology;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @SpringBootTest
@@ -59,29 +62,32 @@ import software.amazon.awssdk.services.s3.S3Client;
 //@Import(TestConfig.class)
 public class OrderConfirmationProcessTest {
 
-    @BeforeAll
-    static void deployProcess() {
-        // Wait for Zeebe to be ready
-        Awaitility.await()
-                .atMost(120, TimeUnit.SECONDS)
-                .until(() -> {
-                    try {
-                        zeebeClient.newTopologyRequest().send().join();
-                        return true;
-                    } catch (Exception e) {
-                        return false;
-                    }
-                });
+    @Container
+    public static GenericContainer<?> zeebeContainer = new GenericContainer<>(
+            DockerImageName.parse("camunda/zeebe:8.1.13"))
+            .withExposedPorts(26500)
+            .withEnv("ZEEBE_BROKER_GATEWAY_NETWORK_HOST", "0.0.0.0")
+            .withEnv("ZEEBE_BROKER_GATEWAY_ENABLE", "true")
+            .withEnv("ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT", "1")
+            .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", "1")
+            .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", "1")
+            .withEnv("ZEEBE_BROKER_DATA_SNAPSHOTPERIOD", "1m")
+            .withEnv("ZEEBE_BROKER_NETWORK_HOST", "0.0.0.0")
+            .withEnv("ZEEBE_GATEWAY_NETWORK_HOST", "0.0.0.0")
+            .withEnv("ZEEBE_BROKER_CLUSTER_NODEID", "0")
+            .withStartupTimeout(Duration.ofMinutes(5))
+            .waitingFor(Wait.forLogMessage(".*Broker is ready!.*", 1)
+                    .withStartupTimeout(Duration.ofMinutes(5)));
 
-        // Deploy the process
-        zeebeClient.newDeployResourceCommand()
-                .addResourceFromClasspath("camunda/order-confirmation.bpmn")
-                .send()
-                .join();
-    }
+    private static ZeebeClient zeebeClient;
 
     @DynamicPropertySource
     static void zeebeProperties(DynamicPropertyRegistry registry) {
+        // Ensure container is started first
+        if (!zeebeContainer.isRunning()) {
+            throw new IllegalStateException("Zeebe container is not running");
+        }
+
         String gatewayAddress = String.format("%s:%d",
                 zeebeContainer.getHost(),
                 zeebeContainer.getMappedPort(26500));
@@ -91,6 +97,64 @@ public class OrderConfirmationProcessTest {
         registry.add("zeebe.client.worker.defaultType", () -> "test");
         registry.add("zeebe.client.requestTimeout", () -> "30s");
     }
+
+    @BeforeAll
+    static void setup() {
+        // Print container logs for debugging
+        zeebeContainer.followOutput(outputFrame -> {
+            System.out.println("ZEBBE LOG: " + outputFrame.getUtf8String());
+        });
+
+        // Initialize Zeebe client after container is ready
+        String gatewayAddress = String.format("%s:%d",
+                zeebeContainer.getHost(),
+                zeebeContainer.getMappedPort(26500));
+
+        zeebeClient = ZeebeClient.newClientBuilder()
+                .gatewayAddress(gatewayAddress)
+                .usePlaintext()
+                .build();
+
+        deployProcess();
+    }
+
+    static void deployProcess() {
+        // Wait for Zeebe to be ready with better error handling
+        Awaitility.await()
+                .atMost(120, TimeUnit.SECONDS)
+                .pollInterval(5, TimeUnit.SECONDS)
+                .ignoreExceptions()
+                .until(() -> {
+                    try {
+                        Topology topology = zeebeClient.newTopologyRequest().send().join();
+                        System.out.println("Zeebe topology: " + topology);
+                        return true;
+                    } catch (Exception e) {
+                        System.err.println("Failed to connect to Zeebe: " + e.getMessage());
+                        throw e;
+                    }
+                });
+
+        // Deploy the process
+        try {
+            DeploymentEvent deployment = zeebeClient.newDeployResourceCommand()
+                    .addResourceFromClasspath("camunda/order-confirmation.bpmn")
+                    .send()
+                    .join();
+            System.out.println("Process deployed: " + deployment.getProcesses());
+        } catch (Exception e) {
+            System.err.println("Failed to deploy process: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    @AfterAll
+    static void tearDown() {
+        if (zeebeClient != null) {
+            zeebeClient.close();
+        }
+    }
+
 
     @MockBean
     private CurrencyServiceClient currencyServiceClient;
@@ -106,9 +170,6 @@ public class OrderConfirmationProcessTest {
 
     @MockBean
     private S3Service s3Service;
-
-    @Autowired
-    private static ZeebeClient zeebeClient;
 
     @MockBean
     private ComplianceCheckWorker complianceCheckWorker;
@@ -145,21 +206,6 @@ public class OrderConfirmationProcessTest {
 
     @MockBean
     private OrderItemRepository orderItemRepository;
-
-
-    @Container
-    public static GenericContainer<?> zeebeContainer = new GenericContainer<>(
-            DockerImageName.parse("camunda/zeebe:8.2.0"))
-            .withExposedPorts(26500)
-            .withEnv("ZEEBE_BROKER_GATEWAY_NETWORK_HOST", "0.0.0.0")
-            .withEnv("ZEEBE_BROKER_GATEWAY_ENABLE", "true")
-            .withEnv("ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT", "1")
-            .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", "1")
-            .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", "1")
-            .withEnv("ZEEBE_BROKER_DATA_SNAPSHOTPERIOD", "1m")
-            .withStartupTimeout(Duration.ofMinutes(3))
-            .waitingFor(Wait.forLogMessage(".*Broker is ready!.*", 1));
-
 
     @Autowired
     private OrderService orderService;
