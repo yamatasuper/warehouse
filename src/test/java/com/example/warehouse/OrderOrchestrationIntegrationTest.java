@@ -44,6 +44,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import software.amazon.awssdk.services.s3.S3Client;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
@@ -55,6 +56,7 @@ public class OrderOrchestrationIntegrationTest {
 
     @MockBean
     private RuntimeService runtimeService;
+
 
     @MockBean
     private OrderRepository orderRepository;
@@ -112,7 +114,7 @@ public class OrderOrchestrationIntegrationTest {
         when(mockPi.getId()).thenReturn("process-123");
 
         // Мокируем runtimeService
-        when(runtimeService.startProcessInstanceByKey(anyString(), anyString()))
+        when(orderOrchestrationService.startOrderConfirmationProcess(orderId.toString()))
                 .thenReturn(mockPi);
 
         // Вызываем контроллер
