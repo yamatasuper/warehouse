@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
@@ -25,15 +26,20 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
-    private OrderService orderService;
-    private OrderOrchestrationService orchestrationService;
+    private final OrderService orderService;
+    private final OrderOrchestrationService orchestrationService;
 
     @PostMapping("/confirm/{orderId}")
-    public ResponseEntity<String> confirmOrder(@PathVariable String orderId) {
+    public ResponseEntity<Map<String, String>> confirmOrder(@PathVariable String orderId) {
         ProcessInstance processInstance = orchestrationService.startOrderConfirmationProcess(orderId);
-        return ResponseEntity.ok("✅ Process started for order " + orderId +
-                " (instanceId=" + processInstance.getId() + ")");
+        Map<String, String> response = Map.of(
+                "status", "PROCESSING",
+                "orderId", orderId,
+                "instanceId", processInstance.getId()
+        );
+        return ResponseEntity.ok(response);
     }
+
 
     @PostMapping
     public ResponseEntity<IdResponse> createOrder(

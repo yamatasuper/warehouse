@@ -17,6 +17,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 import com.example.warehouse.camunda.OrderOrchestrationService;
 import com.example.warehouse.currency.CurrencyService;
 import com.example.warehouse.currency.CurrencyServiceClient;
+import com.example.warehouse.orders.OrderController;
 import com.example.warehouse.orders.OrderEntity;
 import com.example.warehouse.orders.OrderRepository;
 import com.example.warehouse.orders.OrderStatus;
@@ -27,11 +28,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -108,9 +111,8 @@ public class OrderOrchestrationIntegrationTest {
         when(mockPi.getId()).thenReturn("process-123");
         when(orderOrchestrationService.startOrderConfirmationProcess(anyString()))
                 .thenReturn(mockPi);
-
         // Вызываем контроллер
-        mockMvc.perform(post("/api/orders/{orderId}/confirm", orderId)
+        mockMvc.perform(post("/api/orders/confirm/{orderId}", orderId)
                         .header("X-Customer-Id", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"login\":\"user1\"}"))
