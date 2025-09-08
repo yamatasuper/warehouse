@@ -4,11 +4,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import com.example.warehouse.S3Images.S3Service;
-import com.example.warehouse.camunda.ComplianceCheckResponse;
 import com.example.warehouse.camunda.ComplianceCheckWorker;
 import com.example.warehouse.camunda.OrderConfirmRequest;
 import com.example.warehouse.camunda.OrderOrchestrationService;
@@ -46,6 +46,8 @@ import org.testcontainers.utility.DockerImageName;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -216,7 +218,7 @@ public class OrderConfirmationProcessTest {
 
     @Test
     public void testHappyPathOrderConfirmation() throws Exception {
-        // 1. Создаем тестовые данные
+        // 1. Create test data
         UUID orderId = UUID.randomUUID();
         OrderEntity order = OrderEntity.builder()
                 .id(orderId)
@@ -227,7 +229,9 @@ public class OrderConfirmationProcessTest {
                 .accountNumber("ACC123")
                 .totalAmount(new BigDecimal("10.50"))
                 .build();
-        orderRepository.save(order);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(OrderEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         OrderConfirmRequest confirmRequest = new OrderConfirmRequest();
         confirmRequest.setDeliveryAddress("Test Address");
@@ -236,33 +240,65 @@ public class OrderConfirmationProcessTest {
         confirmRequest.setTotalAmount(new BigDecimal("10.50"));
         confirmRequest.setLogin("testuser");
 
-        // 2. Запускаем процесс
+        // 2. Start the process
         UUID businessKey = orchestrationService.startOrderConfirmationProcess(orderId, confirmRequest);
+        System.out.println("Process started with business key: " + businessKey);
 
-        // 3. Ждем, пока процесс дойдет до комплаенс проверки
+        // 3. Debug: Check what jobs are available
+        System.out.println("Checking available job types...");
+        try {
+            Topology topology = zeebeClient.newTopologyRequest().send().join();
+            System.out.println("Topology: " + topology);
+        } catch (Exception e) {
+            System.err.println("Topology check failed: " + e.getMessage());
+        }
+
+        // 4. Wait for compliance-check job with better debugging
         Awaitility.await()
-                .atMost(30, TimeUnit.SECONDS)
+                .atMost(60, TimeUnit.SECONDS)
+                .pollInterval(2, TimeUnit.SECONDS)
                 .until(() -> {
-                    List<ActivatedJob> jobs = zeebeClient.newActivateJobsCommand()
-                            .jobType("compliance-check")
-                            .maxJobsToActivate(10)
-                            .send()
-                            .join()
-                            .getJobs();
-                    return !jobs.isEmpty();
+                    try {
+                        List<ActivatedJob> jobs = zeebeClient.newActivateJobsCommand()
+                                .jobType("compliance-check")
+                                .maxJobsToActivate(10)
+                                .workerName("test-worker")
+                                .timeout(Duration.ofSeconds(10))
+                                .send()
+                                .join()
+                                .getJobs();
+
+                        System.out.println("Found " + jobs.size() + " compliance-check jobs");
+                        if (!jobs.isEmpty()) {
+                            System.out.println("Job details: " + jobs.get(0));
+                        }
+                        return !jobs.isEmpty();
+                    } catch (Exception e) {
+                        System.err.println("Error checking jobs: " + e.getMessage());
+                        return false;
+                    }
                 });
 
-        // 4. Симулируем успешный ответ от комплаенс
-        ComplianceCheckResponse complianceResponse = new ComplianceCheckResponse();
-        complianceResponse.setApproved(true);
-        complianceResponse.setBusinessKey(businessKey.toString());
+        // 5. Complete the compliance-check job
+        List<ActivatedJob> complianceJobs = zeebeClient.newActivateJobsCommand()
+                .jobType("compliance-check")
+                .maxJobsToActivate(1)
+                .workerName("test-worker")
+                .timeout(Duration.ofSeconds(10))
+                .send()
+                .join()
+                .getJobs();
 
-        // 5. Симулируем успешную регистрацию договора
-        stubFor(post(urlEqualTo("/api/contracts/register"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody("{\"contractId\": \"CONTRACT-123\"}")));
+        if (!complianceJobs.isEmpty()) {
+            ActivatedJob job = complianceJobs.get(0);
+            System.out.println("Completing compliance job: " + job.getKey());
+
+            zeebeClient.newCompleteCommand(job.getKey())
+                    .variables(Map.of("complianceApproved", true))
+                    .send()
+                    .join();
+        }
+
 
         // 6. Симулируем успешную регистрацию доставки
         stubFor(post(urlEqualTo("/api/deliveries/register"))

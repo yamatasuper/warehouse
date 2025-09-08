@@ -39,9 +39,9 @@
       <bpmn:outgoing>SequenceFlow_6</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <!-- Compliance Approved Path -->
+    <!-- Compliance Approved Path - FIXED WITH FEEL SYNTAX -->
     <bpmn:sequenceFlow id="SequenceFlow_3" sourceRef="complianceGateway" targetRef="registerContractTask">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${complianceApproved == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=complianceApproved = true</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <!-- Register Contract Service Task -->
@@ -84,9 +84,9 @@
       <bpmn:outgoing>SequenceFlow_7</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <!-- Compliance Rejected Path -->
+    <!-- Compliance Rejected Path - FIXED WITH FEEL SYNTAX -->
     <bpmn:sequenceFlow id="SequenceFlow_6" sourceRef="complianceGateway" targetRef="complianceRejectedEnd">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${complianceApproved == false}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=complianceApproved = false</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
     <!-- End Events -->
