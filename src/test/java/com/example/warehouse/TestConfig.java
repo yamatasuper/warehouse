@@ -1,87 +1,71 @@
 package com.example.warehouse;
 
 import com.example.warehouse.camunda.ComplianceCheckWorker;
+import com.example.warehouse.camunda.OrderOrchestrationService;
 import com.example.warehouse.currency.CurrencyFilter;
 import com.example.warehouse.currency.CurrencyService;
 import com.example.warehouse.currency.CurrencyServiceClient;
-import io.camunda.zeebe.client.ZeebeClient;
-import org.mockito.Mockito;
+import com.example.warehouse.orders.CustomerRepository;
+import com.example.warehouse.orders.OrderItemRepository;
+import com.example.warehouse.orders.OrderRepository;
+import com.example.warehouse.persistence.repository.ProductRepository;
+
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.KafkaTemplate;
-import software.amazon.awssdk.services.s3.S3Client;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import io.camunda.zeebe.client.ZeebeClient;
 
 @TestConfiguration
 public class TestConfig {
 
-    // ... your existing mock beans ...
 
-    @Bean
-    @Primary
-    public CurrencyServiceClient currencyServiceClient() {
-        return Mockito.mock(CurrencyServiceClient.class);
-    }
+    @MockBean
+    private CurrencyServiceClient currencyServiceClient;
 
-    @Bean
-    @Primary
-    public CurrencyService currencyService() {
-        return Mockito.mock(CurrencyService.class);
-    }
+    @MockBean
+    private CurrencyService currencyService;
 
-    @Bean
-    @Primary
-    public CurrencyFilter currencyFilter() {
-        return Mockito.mock(CurrencyFilter.class);
-    }
+    @MockBean
+    private CurrencyFilter currencyFilter;
 
-    @Bean
-    @Primary
-    public S3Client s3Client() {
-        return Mockito.mock(S3Client.class);
-    }
+    @MockBean
+    private ZeebeClient zeebeClient;
 
-    @Bean
-    @Primary
-    public com.example.warehouse.S3Images.S3Service s3Service() {
-        return Mockito.mock(com.example.warehouse.S3Images.S3Service.class);
-    }
+    @MockBean
+    private ComplianceCheckWorker complianceCheckWorker;
 
-    @Bean
-    @Primary
-    public ZeebeClient zeebeClient() {
-        return Mockito.mock(ZeebeClient.class);
-    }
+    @MockBean
+    private KafkaTemplate<String, String> kafkaTemplate;
 
-    @Bean
-    @Primary
-    public ComplianceCheckWorker complianceCheckWorker() {
-        return Mockito.mock(ComplianceCheckWorker.class);
-    }
+    @MockBean
+    private KafkaTemplate<String, byte[]> kafkaTemplateByteArray;
 
-    // Add ALL the required KafkaTemplate mocks
-    @Bean
-    @Primary
-    public KafkaTemplate<String, String> kafkaTemplate() {
-        return Mockito.mock(KafkaTemplate.class);
-    }
+    @MockBean
+    private KafkaTemplate<String, Object> kafkaObjectTemplate;
 
-    @Bean
-    @Primary
-    public KafkaTemplate<String, byte[]> kafkaTemplateByteArray() {
-        return Mockito.mock(KafkaTemplate.class);
-    }
+    @MockBean
+    private org.springframework.kafka.config.KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
 
-    @Bean
-    @Primary
-    public KafkaTemplate<String, Object> kafkaObjectTemplate() {
-        return Mockito.mock(KafkaTemplate.class);
-    }
+    @MockBean
+    private WebClient.Builder webClientBuilder;
 
-    // If you have any other Kafka-related services, add them here
-    @Bean
-    @Primary
-    public org.springframework.kafka.config.KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry() {
-        return Mockito.mock(org.springframework.kafka.config.KafkaListenerEndpointRegistry.class);
-    }
+    @MockBean
+    private WebClient webClient;
+
+    @MockBean
+    private OrderOrchestrationService orderOrchestrationService;
+
+    @MockBean
+    private OrderRepository orderRepository;
+
+    @MockBean
+    private ProductRepository productRepository;
+
+    @MockBean
+    private CustomerRepository customerRepository;
+
+    @MockBean
+    private OrderItemRepository orderItemRepository;
 }

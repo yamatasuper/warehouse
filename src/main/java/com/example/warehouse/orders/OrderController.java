@@ -1,8 +1,8 @@
 package com.example.warehouse.orders;
 
+import com.example.warehouse.camunda.OrderConfirmRequest;
+import com.example.warehouse.camunda.OrderConfirmationResponse;
 import com.example.warehouse.camunda.OrderOrchestrationService;
-import com.example.warehouse.camunda.dto.OrderConfirmRequest;
-import com.example.warehouse.camunda.dto.OrderConfirmationResponse;
 import com.example.warehouse.controller.IdResponse;
 
 import org.springframework.http.HttpStatus;
@@ -26,8 +26,8 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
-    private final OrderService orderService;
-    private final OrderOrchestrationService orchestrationService;
+    private OrderService orderService;
+    private OrderOrchestrationService orchestrationService;
 
     @PostMapping("/{orderId}/confirm")
     public ResponseEntity<OrderConfirmationResponse> confirmOrder(

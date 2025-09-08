@@ -1,11 +1,17 @@
 package com.example.warehouse.camunda;
 
-import com.example.warehouse.camunda.dto.ComplianceResponseMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import io.camunda.zeebe.client.ZeebeClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,22 +20,30 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ComplianceResponseListener {
 
-    private final RuntimeService runtimeService;
+    private ZeebeClient zeebeClient;
+    private ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "compliance-check-responses", groupId = "order-service-group")
-    public void handleComplianceResponse(ComplianceResponseMessage message) {
-        log.info("Received compliance response for businessKey: {}", message.getBusinessKey());
-
+    @KafkaListener(topics = "compliance_responses", groupId = "order-service")
+    public void handleComplianceResponse(@Payload byte[] message,
+                                         @Header(KafkaHeaders.RECEIVED_KEY) String businessKey) {
         try {
-            runtimeService.createMessageCorrelation("Message_ComplianceResponse")
-                    .processInstanceBusinessKey(message.getBusinessKey())
-                    .setVariable("complianceResult", message.getApproved())
-                    .setVariable("rejectionReason", message.getRejectionReason())
-                    .correlate();
+            ComplianceCheckResponse response = objectMapper.readValue(message, ComplianceCheckResponse.class);
+
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("complianceApproved", response.isApproved());
+
+            zeebeClient.newPublishMessageCommand()
+                    .messageName("ComplianceResponseMessage")
+                    .correlationKey(businessKey)
+                    .variables(variables)
+                    .send()
+                    .join();
+
+            log.info("Processed compliance response for businessKey: {}, approved: {}",
+                    businessKey, response.isApproved());
 
         } catch (Exception e) {
-            log.error("Failed to correlate compliance response for businessKey: {}",
-                    message.getBusinessKey(), e);
+            log.error("Failed to process compliance response for businessKey: {}", businessKey, e);
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.example.warehouse.camunda;
 
-import org.camunda.bpm.engine.delegate.DelegateExecution;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -16,33 +18,31 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ComplianceCheckWorker {
 
-    private final OrderOrchestrationService orchestrationService;
-    private final ZeebeClient zeebeClient;
+    private ZeebeClient zeebeClient;
+    private KafkaTemplate<String, byte[]> kafkaTemplate;
+    private ObjectMapper objectMapper;
 
-    // Для Camunda
-    public void checkCompliance(DelegateExecution execution) {
-        String businessKey = (String) execution.getVariable("businessKey");
-        Boolean approved = true; // можно логика проверки
-        execution.setVariable("complianceApproved", approved);
-    }
-
-    // Для Zeebe
-    @JobWorker(type = "SendComplianceCheck")
-    public void handleComplianceCheckTask(final ActivatedJob job) {
+    @JobWorker(type = "compliance-check", autoComplete = true)
+    public void handleComplianceCheck(final ActivatedJob job) {
         Map<String, Object> variables = job.getVariablesAsMap();
         String businessKey = (String) variables.get("businessKey");
         String login = (String) variables.get("login");
         String inn = (String) variables.get("inn");
 
+        // Отправляем запрос в Kafka
         try {
-            orchestrationService.sendComplianceCheck(businessKey, login, inn);
-            zeebeClient.newCompleteCommand(job.getKey()).send().join();
+            ComplianceCheckRequest request = new ComplianceCheckRequest();
+            request.setLogin(login);
+            request.setInn(inn);
+            request.setBusinessKey(businessKey);
+
+            byte[] value = objectMapper.writeValueAsBytes(request);
+            kafkaTemplate.send("compliance_requests", businessKey, value);
+
+            log.info("Sent compliance check request for businessKey: {}", businessKey);
         } catch (Exception e) {
-            zeebeClient.newFailCommand(job.getKey())
-                    .retries(job.getRetries() - 1)
-                    .errorMessage(e.getMessage())
-                    .send()
-                    .join();
+            log.error("Failed to send compliance check request", e);
+            throw new RuntimeException("Compliance check failed", e);
         }
     }
 }
