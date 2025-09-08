@@ -1,6 +1,5 @@
 package com.example.warehouse;
 
-import com.example.warehouse.camunda.ComplianceCheckWorker;
 import com.example.warehouse.camunda.OrderOrchestrationService;
 import com.example.warehouse.currency.CurrencyFilter;
 import com.example.warehouse.currency.CurrencyService;
@@ -16,10 +15,12 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import io.camunda.zeebe.client.ZeebeClient;
+import software.amazon.awssdk.services.s3.S3Client;
 
 @TestConfiguration
 public class TestConfig {
-
+    @MockBean
+    private S3Client s3Client;
 
     @MockBean
     private CurrencyServiceClient currencyServiceClient;
@@ -32,9 +33,6 @@ public class TestConfig {
 
     @MockBean
     private ZeebeClient zeebeClient;
-
-    @MockBean
-    private ComplianceCheckWorker complianceCheckWorker;
 
     @MockBean
     private KafkaTemplate<String, String> kafkaTemplate;

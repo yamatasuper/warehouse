@@ -1,110 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-                 xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-                 xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
-                 xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
-                 xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
-                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                 id="Definitions_1"
-                 targetNamespace="http://bpmn.io/schema/bpmn"
-                 xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+<bpmn:process id="order-orchestration" isExecutable="true">
+  <bpmn:startEvent id="StartEvent"/>
+  <bpmn:sequenceFlow sourceRef="StartEvent" targetRef="Task_Compliance"/>
 
-  <bpmn:process id="order-confirmation-process" name="Order Confirmation Process" isExecutable="true">
+  <bpmn:serviceTask id="Task_Compliance" name="Compliance Check"
+      camunda:type="external" camunda:topic="compliance-check"/>
+  <bpmn:sequenceFlow sourceRef="Task_Compliance" targetRef="Task_Contract"/>
 
-    <!-- Start Event -->
-    <bpmn:startEvent id="startOrderConfirmation" name="Start Order Confirmation">
-      <bpmn:outgoing>SequenceFlow_1</bpmn:outgoing>
-    </bpmn:startEvent>
+  <bpmn:serviceTask id="Task_Contract" name="Register Contract"
+      camunda:type="external" camunda:topic="register-contract"/>
+  <bpmn:sequenceFlow sourceRef="Task_Contract" targetRef="Task_Delivery"/>
 
-    <!-- Compliance Check Service Task -->
-    <bpmn:sequenceFlow id="SequenceFlow_1" sourceRef="startOrderConfirmation" targetRef="complianceCheckTask" />
+  <bpmn:serviceTask id="Task_Delivery" name="Register Delivery"
+      camunda:type="external" camunda:topic="register-delivery"/>
+  <bpmn:sequenceFlow sourceRef="Task_Delivery" targetRef="Task_Payment"/>
 
-    <bpmn:serviceTask id="complianceCheckTask" name="Compliance Check">
-      <bpmn:extensionElements>
-        <zeebe:taskDefinition type="compliance-check" />
-        <zeebe:taskHeaders>
-          <zeebe:header key="method" value="POST" />
-        </zeebe:taskHeaders>
-      </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_1</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_2</bpmn:outgoing>
-    </bpmn:serviceTask>
+  <bpmn:serviceTask id="Task_Payment" name="Make Payment"
+      camunda:type="external" camunda:topic="make-payment"/>
+  <bpmn:sequenceFlow sourceRef="Task_Payment" targetRef="EndEvent"/>
 
-    <!-- Exclusive Gateway for Compliance Result -->
-    <bpmn:sequenceFlow id="SequenceFlow_2" sourceRef="complianceCheckTask" targetRef="complianceGateway" />
-
-    <bpmn:exclusiveGateway id="complianceGateway" name="Compliance Result">
-      <bpmn:incoming>SequenceFlow_2</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_3</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_6</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-
-    <!-- Compliance Approved Path - FIXED WITH FEEL SYNTAX -->
-    <bpmn:sequenceFlow id="SequenceFlow_3" sourceRef="complianceGateway" targetRef="registerContractTask">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=complianceApproved = true</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-
-    <!-- Register Contract Service Task -->
-    <bpmn:serviceTask id="registerContractTask" name="Register Contract">
-      <bpmn:extensionElements>
-        <zeebe:taskDefinition type="register-contract" />
-        <zeebe:taskHeaders>
-          <zeebe:header key="method" value="POST" />
-        </zeebe:taskHeaders>
-      </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_3</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_4</bpmn:outgoing>
-    </bpmn:serviceTask>
-
-    <!-- Register Delivery Service Task -->
-    <bpmn:sequenceFlow id="SequenceFlow_4" sourceRef="registerContractTask" targetRef="registerDeliveryTask" />
-
-    <bpmn:serviceTask id="registerDeliveryTask" name="Register Delivery">
-      <bpmn:extensionElements>
-        <zeebe:taskDefinition type="register-delivery" />
-        <zeebe:taskHeaders>
-          <zeebe:header key="method" value="POST" />
-        </zeebe:taskHeaders>
-      </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_4</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_5</bpmn:outgoing>
-    </bpmn:serviceTask>
-
-    <!-- Process Payment Service Task -->
-    <bpmn:sequenceFlow id="SequenceFlow_5" sourceRef="registerDeliveryTask" targetRef="processPaymentTask" />
-
-    <bpmn:serviceTask id="processPaymentTask" name="Process Payment">
-      <bpmn:extensionElements>
-        <zeebe:taskDefinition type="process-payment" />
-        <zeebe:taskHeaders>
-          <zeebe:header key="method" value="POST" />
-        </zeebe:taskHeaders>
-      </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_5</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_7</bpmn:outgoing>
-    </bpmn:serviceTask>
-
-    <!-- Compliance Rejected Path - FIXED WITH FEEL SYNTAX -->
-    <bpmn:sequenceFlow id="SequenceFlow_6" sourceRef="complianceGateway" targetRef="complianceRejectedEnd">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=complianceApproved = false</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-
-    <!-- End Events -->
-    <bpmn:endEvent id="complianceRejectedEnd" name="Compliance Rejected">
-      <bpmn:incoming>SequenceFlow_6</bpmn:incoming>
-    </bpmn:endEvent>
-
-    <bpmn:sequenceFlow id="SequenceFlow_7" sourceRef="processPaymentTask" targetRef="orderConfirmedEnd" />
-
-    <bpmn:endEvent id="orderConfirmedEnd" name="Order Confirmed">
-      <bpmn:incoming>SequenceFlow_7</bpmn:incoming>
-    </bpmn:endEvent>
-
-  </bpmn:process>
-
-  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="order-confirmation-process">
-      <!-- Diagram elements would go here -->
-    </bpmndi:BPMNPlane>
-  </bpmndi:BPMNDiagram>
-</bpmn:definitions>
+  <bpmn:endEvent id="EndEvent"/>
+</bpmn:process>

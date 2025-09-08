@@ -1,10 +1,9 @@
 package com.example.warehouse.orders;
 
-import com.example.warehouse.camunda.OrderConfirmRequest;
-import com.example.warehouse.camunda.OrderConfirmationResponse;
 import com.example.warehouse.camunda.OrderOrchestrationService;
 import com.example.warehouse.controller.IdResponse;
 
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,21 +28,11 @@ public class OrderController {
     private OrderService orderService;
     private OrderOrchestrationService orchestrationService;
 
-    @PostMapping("/{orderId}/confirm")
-    public ResponseEntity<OrderConfirmationResponse> confirmOrder(
-            @RequestHeader("X-Customer-Id") Long customerId,
-            @PathVariable UUID orderId,
-            @Valid @RequestBody OrderConfirmRequest request) {
-
-        UUID businessKey = orchestrationService.startOrderConfirmationProcess(
-                orderId, request
-        );
-
-        return ResponseEntity.ok(new OrderConfirmationResponse(
-                orderId,
-                businessKey,
-                OrderStatus.PROCESSING
-        ));
+    @PostMapping("/confirm/{orderId}")
+    public ResponseEntity<String> confirmOrder(@PathVariable String orderId) {
+        ProcessInstance processInstance = orchestrationService.startOrderConfirmationProcess(orderId);
+        return ResponseEntity.ok("✅ Process started for order " + orderId +
+                " (instanceId=" + processInstance.getId() + ")");
     }
 
     @PostMapping

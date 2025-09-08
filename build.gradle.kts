@@ -97,7 +97,6 @@ dependencies {
 	implementation("software.amazon.awssdk:aws-core:2.20.0")
 
 	// Spring Boot Test Starter (includes autoconfigure for testing)
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
 
 	implementation(files("libs/exception-handler-starter-1.0.0.jar"))
@@ -121,10 +120,12 @@ dependencies {
 	testImplementation("org.testcontainers:kafka:1.18.3")
 	testImplementation("org.testcontainers:junit-jupiter:1.18.3")
 
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.camunda:zeebe-process-test-extension:8.8.0-alpha8")
 	testImplementation("org.awaitility:awaitility:4.2.0")
 	testImplementation("com.github.tomakehurst:wiremock:3.0.1")
+
+	implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-external-task-client:7.22.0")
+
 }
 
 tasks.withType<Test> {
@@ -160,5 +161,9 @@ tasks {
 	// Задача для генерации Javadoc вместе со сборкой
 	build {
 		dependsOn("javadoc")
+	}
+
+	test {
+		useJUnitPlatform() // обязательно для JUnit 5
 	}
 }

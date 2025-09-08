@@ -73,6 +73,18 @@ aws:
 # Конфигурация Camunda
 camunda:
   bpm:
+    client:
+      base-url: http://localhost:8080/engine-rest
+      async-response-timeout: 10000
+      subscriptions:
+        compliance-check:
+          lock-duration: 10000
+        register-contract:
+          lock-duration: 10000
+        register-delivery:
+          lock-duration: 10000
+        make-payment:
+          lock-duration: 10000
     database:
       type: postgres
       schema-update: true
