@@ -109,8 +109,8 @@ dependencies {
 	implementation("org.camunda.bpm:camunda-engine:7.20.0")
 
 // Zeebe (для работы с Camunda Cloud/Zeebe)
-	implementation("io.camunda:spring-zeebe-starter:8.5.0")
-	implementation("io.camunda:zeebe-client-java:8.5.0")
+	implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.22.0")
+	implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.22.0")
 
 	testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:3.0.1")
 	testImplementation("org.mockito:mockito-core:4.7.0")
@@ -135,6 +135,7 @@ tasks.withType<Test> {
 tasks.bootJar {
 	archiveFileName.set("warehouse-app.jar")
 	mainClass.set("com.example.warehouse.WarehouseApplication")
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 // Для Spring Boot приложения через bootRun
