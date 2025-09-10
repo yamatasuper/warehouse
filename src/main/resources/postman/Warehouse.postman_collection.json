@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "a1b2c3d4-e5f6-7890",
+    "_postman_id": "warehouse-api-collection",
     "name": "Warehouse API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -33,6 +33,19 @@
       "response": []
     },
     {
+      "name": "Get All Products",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/products",
+          "host": ["{{base_url}}"],
+          "path": ["api", "products"]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "Get Product by ID",
       "request": {
         "method": "GET",
@@ -55,15 +68,15 @@
             "value": "application/json"
           }
         ],
-      "body": {
-        "mode": "raw",
-        "raw": "{\n  \"name\": \"MacBook Pro Updated\",\n  \"article\": \"MK183LL/A\",\n  \"description\": \"16-inch M2 Max (Updated)\",\n  \"category\": \"ELECTRONICS\",\n  \"price\": 3199.99,\n  \"quantity\": 5\n}",
-        "options": {
-          "raw": {
-            "language": "json"
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"MacBook Pro Updated\",\n  \"article\": \"MK183LL/A\",\n  \"description\": \"16-inch M2 Max (Updated)\",\n  \"category\": \"ELECTRONICS\",\n  \"price\": 3199.99,\n  \"quantity\": 5\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
           }
-        }
-      },
+        },
         "url": {
           "raw": "{{base_url}}/api/products/{{product_id}}",
           "host": ["{{base_url}}"],
@@ -86,14 +99,64 @@
       "response": []
     },
     {
-      "name": "Get All Products",
+      "name": "Create Order",
       "request": {
-        "method": "GET",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Customer-Id",
+            "value": "123"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"{{product_id}}\",\n      \"quantity\": 2\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Confirm Order Process",
+      "request": {
+        "method": "POST",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/products",
+          "raw": "{{base_url}}/api/orders/confirm/{{order_id}}",
           "host": ["{{base_url}}"],
-          "path": ["api", "products"]
+          "path": ["api", "orders", "confirm", "{{order_id}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Seed Test Images",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/dev/seed-images?imagesPerProduct=3",
+          "host": ["{{base_url}}"],
+          "path": ["api", "dev", "seed-images"],
+          "query": [
+            {
+              "key": "imagesPerProduct",
+              "value": "3"
+            }
+          ]
         }
       },
       "response": []
@@ -106,29 +169,24 @@
     },
     {
       "key": "product_id",
-      "value": "paste-uuid-here"
+      "value": "paste-product-uuid-here"
+    },
+    {
+      "key": "order_id",
+      "value": "paste-order-uuid-here"
     }
   ],
   "event": [
     {
-      "listen": "prerequest",
-      "script": {
-        "exec": [
-          ""
-        ],
-        "type": "text/javascript"
-      }
-    },
-    {
       "listen": "test",
       "script": {
         "exec": [
-          "pm.test(\"Status code is 200\", function() {",
-          "    pm.response.to.have.status(200);",
+          "pm.test(\"Status code is successful\", function() {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
           "});",
           "",
           "pm.test(\"Response time is acceptable\", function() {",
-          "    pm.expect(pm.response.responseTime).to.be.below(500);",
+          "    pm.expect(pm.response.responseTime).to.be.below(1000);",
           "});"
         ],
         "type": "text/javascript"

@@ -5,10 +5,14 @@ CRUD-приложение для управления товарами на ск
 - Spring Boot 3
 - PostgreSQL/H2 Database
 - Docker
+- Kubernetes
+- Kafka
+- Camunda/Zeebe workflow orchestration
+- AWS S3/MinIO для хранения изображений
 
 ## 🚀 Запуск приложения
 
-### Вариант 1: С PostgreSQL (Docker)
+### Вариант 1: С PostgreSQL (Docker Compose)
 
 ```bash
 # 1. Остановите существующие контейнеры (если есть)
@@ -21,7 +25,7 @@ docker volume rm warehouse_pgdata
 docker-compose up --build
 
 # 4. Проверьте работу API
-curl http://localhost:8080/api/products
+curl http://localhost:8082/api/products
 
 # 5. Доступ к PostgreSQL (в другом терминале)
 docker-compose exec db psql -U postgres warehouse
@@ -29,98 +33,176 @@ docker-compose exec db psql -U postgres warehouse
 # В psql выполните:
 \dt             # Показать таблицы
 SELECT * FROM products;  # Просмотр товаров
-```
 
-### Вариант 2: С H2 (для разработки)
+ H2 (для разработки)
 
-```bash
 # 1. Запустите приложение с профилем 'local'
 ./gradlew bootRun --args='--spring.profiles.active=local'
 
 # 2. Доступ к H2 Console:
-http://localhost:8080/h2-console
+http://localhost:8082/h2-console
 JDBC URL: jdbc:h2:file:./movchandb
 User: sa
 Password: (оставьте пустым)
-```
 
-## 🌐 API Endpoints
+Kubernetes развертывание
+# Используйте скрипт деплоя
+./deploy.sh
 
-### Товары
-- `GET    /api/products` - Получить все товары
-- `POST   /api/products` - Создать товар
-- `GET    /api/products/{id}` - Получить товар по ID
-- `PUT    /api/products/{id}` - Обновить товар
-- `DELETE /api/products/{id}` - Удалить товар
+# Или вручную:
+kubectl apply -f namespace.yaml
+kubectl apply -f pvc.yaml
+kubectl apply -f deployments.yaml
+kubectl apply -f services.yaml
+kubectl apply -f ingress.yaml
 
-Пример запроса:
-```bash
-curl -X POST -H "Content-Type: application/json" -d '{
-  "name": "MacBook Pro",
-  "article": "MBP2023",
-  "category": "ELECTRONICS",
-  "price": 2999.99,
-  "quantity": 10
-}' http://localhost:8080/api/products
-```
+# Проброс портов для доступа
+kubectl port-forward -n warehouse-app svc/warehouse-app 8080:8080
 
-## 🛠 Технические детали
+API Endpoints
 
-### Конфигурация БД
-- **PostgreSQL** (production):
-  ```properties
-  spring.datasource.url=jdbc:postgresql://db:5432/warehouse
-  spring.datasource.username=
-  spring.datasource.password=
-  ```
+Товары
 
-- **H2** (development):
-  ```properties
-  spring.datasource.url=jdbc:h2:file:./movchandb
-  spring.datasource.driver-class-name=org.h2.Driver
-  spring.h2.console.enabled=true
-  ```
+GET /api/products - Получить все товары
+POST /api/products - Создать товар
+GET /api/products/{id} - Получить товар по ID
+PUT /api/products/{id} - Обновить товар
+DELETE /api/products/{id} - Удалить товар
 
-### Docker
-- **Порт приложения**: 8080
-- **Порт PostgreSQL**: 5432
-- **Volume для данных**: warehouse_pgdata
+Заказы
 
-## 🧪 Тестирование
-```bash
+POST /api/orders - Создать заказ
+GET /api/orders/{orderId} - Получить заказ по ID
+DELETE /api/orders/{orderId} - Отменить заказ
+PATCH /api/orders/{orderId}/status - Обновить статус заказа
+POST /api/orders/confirm/{orderId} - Запустить процесс подтверждения заказа
+
+Изображения товаров
+
+GET /api/products/{productId}/images - Получить изображения товара
+POST /api/dev/seed-images - Сгенерировать тестовые изображения
+
+Kafka тестирование
+
+POST /api/kafka-test - Отправить тестовое сообщение в Kafka
+
+Технические детали
+Архитектура
+
+Основное приложение: Spring Boot 3 с REST API
+База данных: PostgreSQL для production, H2 для разработки
+Очереди: Kafka для асинхронной обработки сообщений
+Оркестрация: Camunda/Zeebe для workflow управления заказами
+Хранилище: MinIO (S3-совместимое) для изображений товаров
+Интеграции: Внешние сервисы для получения данных аккаунтов и клиентов
+
+Конфигурация БД
+PostgreSQL (production):
+spring.datasource.url=jdbc:postgresql://db:5432/warehouse
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+
+H2 (development):
+spring.datasource.url=jdbc:h2:file:./movchandb
+spring.datasource.driver-class-name=org.h2.Driver
+spring.h2.console.enabled=true
+
+Docker
+
+Порт приложения: 8082 (8080 в контейнере)
+Порт PostgreSQL: 5432
+Порт Kafka UI: 9081
+Порт Zeebe: 26500
+Volume для данных: warehouse_pgdata
+
+Тестирование
 # Запуск тестов
 ./gradlew test
 
 # Генерация Javadoc
 ./gradlew javadoc
-open build/docs/javadoc/index.html # для мак
 
+# Доступ к документации (Mac)
+open build/docs/javadoc/index.html
+
+# Доступ к документации (Linux)
 cd build/docs/javadoc && python -m http.server 8000
-http://0.0.0.0:8000/ # для линукс
+# Открыть http://localhost:8000
 
-# Результат: build/docs/javadoc/
-```
+Мониторинг и администрирование
+Kafka UI
+http://localhost:9081
 
-## 🔧 Устранение проблем
+H2 Console (development)
+http://localhost:8082/h2-console
 
-### Если порт 8080 занят:
-```bash
+Swagger/OpenAPI
+http://localhost:8082/swagger-ui/index.html
+
+Устранение проблем
 # Найти процесс
-lsof -i :8080
+lsof -i :8082
 # Остановить процесс
 kill -9 <PID>
-```
 
-### Если таблицы не создаются:
-1. Проверьте логи Spring Boot:
-```bash
+Если таблицы не создаются:
+Проверьте логи Spring Boot:
 docker-compose logs app | grep "SQL create"
-```
-2. Убедитесь, что в настройках:
-```properties
-spring.jpa.hibernate.ddl-auto=validate
-```
 
-## 🧪 Swagger
-# Запуск
-http://localhost:8080/swagger-ui/index.html
+Убедитесь, что в настройках:
+spring.jpa.hibernate.ddl-auto=validate
+
+Очистка окружения
+# Полная очистка Docker
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+docker rmi -f $(docker images -q)
+docker volume rm $(docker volume ls -q)
+
+# Очистка Kubernetes
+kubectl delete all --all -n warehouse-app
+kubectl delete pvc --all -n warehouse-app
+kubectl delete configmap --all -n warehouse-app
+kubectl delete namespace warehouse-app
+
+Структура проекта
+warehouse/
+├── src/main/java/com/example/warehouse/
+│   ├── camunda/           # Camunda BPM конфигурация и обработчики
+│   ├── config/            # Конфигурационные классы Spring
+│   ├── controller/        # REST контроллеры
+│   ├── currency/          # Работа с валютами и курсами
+│   ├── enums/            # Перечисления (enum classes)
+│   ├── exception/         # Обработка исключений
+│   ├── kafka/            # Kafka producers/consumers
+│   ├── metrics/          # Метрики и мониторинг
+│   ├── orders/           # Логика заказов
+│   ├── ordersInfo/       # Информация о заказах
+│   ├── persistence/      # Репозитории и entity классы
+│   ├── S3Images/         # Работа с S3/MinIO для изображений
+│   ├── schedulers/       # Планировщики задач
+│   ├── search/           # Поисковые функции
+│   ├── service/          # Бизнес-логика сервисов
+│   └── WarehouseApplication.java # Главный класс приложения
+├── src/main/resources/
+│   ├── application.yml    # Основная конфигурация
+│   ├── application-docker.yml # Конфигурация для Docker
+│   ├── application-local.yml # Конфигурация для локальной разработки
+│   └── db/changelog/      # Миграции базы данных (Liquibase)
+├── config/                # Дополнительные конфигурационные файлы
+│   └── application-docker.yml
+├── kubernetes/           # Файлы для развертывания в Kubernetes
+│   ├── namespace.yaml
+│   ├── configmap.yaml
+│   ├── pvc.yaml
+│   ├── deployments.yaml
+│   ├── services.yaml
+│   └── ingress.yaml
+├── docker-compose.yml    # Docker компоновка для локального развития
+├── Dockerfile           # Сборка Docker образа приложения
+├── init-db.sh          # Скрипт инициализации БД
+├── deploy.sh           # Скрипт деплоя в Kubernetes
+├── build.gradle.kts    # Конфигурация Gradle
+├── settings.gradle.kts # Настройки проекта Gradle
+└── gradlew             # Gradle wrapper
+
