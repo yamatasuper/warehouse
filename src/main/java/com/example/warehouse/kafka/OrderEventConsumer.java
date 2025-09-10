@@ -1,4 +1,4 @@
-package kafka;
+package com.example.warehouse.kafka;
 
 import com.example.warehouse.orders.OrderCreateRequest;
 import com.example.warehouse.orders.OrderItemRequest;

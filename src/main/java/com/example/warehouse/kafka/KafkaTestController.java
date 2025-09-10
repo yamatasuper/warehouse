@@ -1,4 +1,4 @@
-package kafka;
+package com.example.warehouse.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;

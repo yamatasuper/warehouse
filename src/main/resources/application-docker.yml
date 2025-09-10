@@ -52,6 +52,11 @@ app:
       crm:
         url: http://currencies-service:8081/api/customers/inn
 
+  kafka:
+    topics:
+      test-topic: test_topic
+      order-events: order_events
+
 currency-service:
   host: http://currencies-service:8090
   methods:
@@ -95,11 +100,6 @@ camunda:
     admin-user:
       id: demo
       password: demo
-  app:
-    kafka:
-      topics:
-        test-topic: test_topic
-        order-events: order_events
 
 # Конфигурация Zeebe
 zeebe:

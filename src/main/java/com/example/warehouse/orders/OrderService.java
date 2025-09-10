@@ -1,13 +1,14 @@
 package com.example.warehouse.orders;
 
+import com.example.warehouse.kafka.OrderEvent;
+import com.example.warehouse.kafka.OrderItemEvent;
+import com.example.warehouse.kafka.OrderStatusUpdateEvent;
 import com.example.warehouse.persistence.entity.ProductEntity;
 import com.example.warehouse.persistence.repository.ProductRepository;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kafka.OrderEvent;
-import kafka.OrderItemEvent;
-import kafka.OrderStatusUpdateEvent;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
