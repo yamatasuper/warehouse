@@ -6,7 +6,9 @@ services:
       context: /Users/artemmovchan/Desktop/git/warehouse
     ports:
       - "8082:8080"
+      - "5005:5005"
     environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/warehouse
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
