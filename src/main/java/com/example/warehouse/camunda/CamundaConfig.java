@@ -32,10 +32,10 @@ public class CamundaConfig {
         return dataSource;
     }
 
-    @Bean
     @Primary
-    public PlatformTransactionManager camundaTransactionManager(DataSource camundaDataSource) {
-        return new DataSourceTransactionManager(camundaDataSource);
+    @Bean(name = "transactionManager")
+    public PlatformTransactionManager appTransactionManager() {
+        return new DataSourceTransactionManager(camundaDataSource());
     }
 
     // Авто-деплой всех BPMN из папки processes

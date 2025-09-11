@@ -109,7 +109,7 @@
           },
           {
             "key": "X-Customer-Id",
-            "value": "123"
+            "value": "1"
           }
         ],
         "body": {
@@ -125,6 +125,23 @@
           "raw": "{{base_url}}/api/orders",
           "host": ["{{base_url}}"],
           "path": ["api", "orders"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Order by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Customer-Id",
+            "value": "1"
+          }],
+        "url": {
+          "raw": "{{base_url}}/api/orders/{{order_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders", "{{order_id}}"]
         }
       },
       "response": []

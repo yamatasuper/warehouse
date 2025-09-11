@@ -90,7 +90,7 @@ kubectl port-forward -n warehouse-app svc/warehouse-app 8080:8080
 | Метод | Эндпоинт | Описание |
 |-------|----------|----------|
 | `POST` | `/api/orders` | Создать заказ |
-| `GET` | `/api/orders/{orderId}` | Получить заказ по ID |
+d | Получить заказ по ID |
 | `DELETE` | `/api/orders/{orderId}` | Отменить заказ |
 | `PATCH` | `/api/orders/{orderId}/status` | Обновить статус заказа |
 | `POST` | `/api/orders/confirm/{orderId}` | Запустить процесс подтверждения заказа |
