@@ -3,7 +3,7 @@ version: '3.8'
 services:
   main-app:
     build:
-      context: /Users/artemmovchan/Desktop/git/warehouse
+      context: C:\Users\yamat\IdeaProjects\warehouse
     ports:
       - "8082:8080"
       - "5005:5005"
@@ -14,7 +14,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_PROFILES_ACTIVE=docker,kafka
     volumes:
-      - /Users/artemmovchan/Desktop/git/warehouse/config/application-docker.yml:/app/config/application.yml
+      - C:\Users\yamat\IdeaProjects\warehouse\config\application-docker.yml:/app/config/application.yml
     depends_on:
       db:
         condition: service_healthy
@@ -47,7 +47,7 @@ services:
 
   currencies-service:
     build:
-      context: /Users/artemmovchan/Desktop/git/currenciesDocker
+      context: C:\Users\yamat\IdeaProjects\currenciesDocker
     ports:
       - "8090:8090"
     environment:
